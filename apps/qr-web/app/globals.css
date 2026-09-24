@@ -1,0 +1,19 @@
+/* File: apps/qr-web/app/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-brand: #f59e0b;
+  }
+  body {
+    @apply bg-amber-50 text-gray-900 font-sans antialiased;
+  }
+}
+
+@layer utilities {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

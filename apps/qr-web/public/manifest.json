@@ -1,0 +1,21 @@
+{
+  "name": "Kedai TehYan Menu",
+  "short_name": "TehYan Menu",
+  "description": "Sistem pemesanan meja digital Kedai TehYan",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fef3c7",
+  "theme_color": "#f59e0b",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

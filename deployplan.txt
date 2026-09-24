@@ -1,0 +1,29 @@
+Step to install:
+cd C:\Users\USER\.gemini\antigravity\scratch\tehyan-pos\apps\backend
+npx prisma migrate dev --name init
+npx prisma db seed
+
+
+Step to run dev server:
+cd C:\Users\USER\.gemini\antigravity\scratch\tehyan-pos
+npm run dev
+
+Default Acc:
+Admin: admin@tehyan.com Pass:admin123
+Kasir :kasir@tehyan.com Pass: kasir123
+
+Rencana Deploy:
+Jika Anda sudah siap untuk online, alurnya akan seperti ini:
+
+1. Upload ke GitHub: Push seluruh folder tehyan-pos ini ke repositori GitHub pribadi Anda.
+2. Buat Database: Daftar ke TiDB/Aiven, dapatkan URL MySQL-nya.
+3. Deploy Backend (Render):
+   -Hubungkan Render ke GitHub Anda, pilih folder apps/backend.
+   -Masukkan perintah build: npm install && npx prisma generate && npx prisma migrate deploy
+   -Masukkan perintah start: npm start
+   -Masukkan Environment Variables (DATABASE_URL, JWT_SECRET, dll).
+   -Hasil: Anda mendapat link https://tehyan-backend.onrender.com
+4. Deploy Frontend (Vercel):
+   -Hubungkan Vercel ke GitHub Anda.
+   -Buat project untuk QR Web, set variabel NEXT_PUBLIC_BACKEND_URL ke link Render di atas.
+   -Buat project untuk POS, set variabel VITE_API_URL ke link Render di atas.

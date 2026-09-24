@@ -1,0 +1,21 @@
+{
+  "name": "tehyan-pos",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/backend",
+    "apps/pos",
+    "apps/qr-web"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace=apps/backend",
+    "dev:pos": "npm run dev --workspace=apps/pos",
+    "dev:qr": "npm run dev --workspace=apps/qr-web",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:pos\" \"npm run dev:qr\"",
+    "db:migrate": "npm run migrate --workspace=apps/backend",
+    "db:seed": "npm run seed --workspace=apps/backend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

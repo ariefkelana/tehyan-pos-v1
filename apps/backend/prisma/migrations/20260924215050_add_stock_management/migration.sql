@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `products` ADD COLUMN `isStockTracked` BOOLEAN NOT NULL DEFAULT false,
+    ADD COLUMN `stock` INTEGER NOT NULL DEFAULT 0;
