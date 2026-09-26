@@ -91,7 +91,13 @@ export function useOrders() {
     socket.on('order:updated', onOrderUpdated);
     socket.on('payment:completed', onPaymentCompleted);
 
+    // Fallback polling for serverless environments (every 10 seconds)
+    const pollInterval = setInterval(() => {
+      fetchOrders();
+    }, 10000);
+
     return () => {
+      clearInterval(pollInterval);
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
       socket.off('new-order', onNewOrder);
