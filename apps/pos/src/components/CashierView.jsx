@@ -5,13 +5,13 @@ import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
-import axios from 'axios';
+import api from '../lib/api.js';
 import clsx from 'clsx';
 import PaymentModal from './PaymentModal.jsx';
 
 // ── Constants ──────────────────────────────────────────────────────────────
 const SOCKET_URL = 'https://tehyan-pos-v1-backend.vercel.app';
-const API_BASE = 'https://tehyan-pos-v1-backend.vercel.app/api';
+
 
 const STATUS_LABELS = {
   PENDING: 'Menunggu',
@@ -61,7 +61,7 @@ export default function CashierView() {
   const fetchOrders = useCallback(async () => {
     try {
       setIsLoading(true);
-      const { data } = await axios.get(API_BASE + '/orders', { headers: { Authorization: 'Bearer ' + localStorage.getItem('pos_token') } });
+      const { data } = await api.get('/orders');
       if (data.success) {
         setOrders(data.data);
       }
@@ -170,7 +170,7 @@ export default function CashierView() {
   const handleUpdateStatus = async (orderId, newStatus) => {
     setUpdatingId(orderId);
     try {
-      await axios.patch(API_BASE + '/orders/' + orderId + '/status', { status: newStatus }, { headers: { Authorization: 'Bearer ' + localStorage.getItem('pos_token') } });
+      await api.patch('/orders/' + orderId + '/status', { status: newStatus });
       // Optimistic update (socket event will also update state)
       setOrders((prev) =>
         prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
