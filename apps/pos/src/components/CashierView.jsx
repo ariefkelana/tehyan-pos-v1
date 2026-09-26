@@ -10,8 +10,8 @@ import clsx from 'clsx';
 import PaymentModal from './PaymentModal.jsx';
 
 // ── Constants ──────────────────────────────────────────────────────────────
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
-const API_BASE = import.meta.env.VITE_API_BASE || '/api';
+const SOCKET_URL = 'https://tehyan-pos-v1-backend.vercel.app';
+const API_BASE = 'https://tehyan-pos-v1-backend.vercel.app/api';
 
 const STATUS_LABELS = {
   PENDING: 'Menunggu',
@@ -61,7 +61,7 @@ export default function CashierView() {
   const fetchOrders = useCallback(async () => {
     try {
       setIsLoading(true);
-      const { data } = await axios.get(`${API_BASE}/orders`);
+      const { data } = await axios.get(API_BASE + '/orders', { headers: { Authorization: 'Bearer ' + localStorage.getItem('pos_token') } });
       if (data.success) {
         setOrders(data.data);
       }
@@ -170,7 +170,7 @@ export default function CashierView() {
   const handleUpdateStatus = async (orderId, newStatus) => {
     setUpdatingId(orderId);
     try {
-      await axios.patch(`${API_BASE}/orders/${orderId}/status`, { status: newStatus });
+      await axios.patch(API_BASE + '/orders/' + orderId + '/status', { status: newStatus }, { headers: { Authorization: 'Bearer ' + localStorage.getItem('pos_token') } });
       // Optimistic update (socket event will also update state)
       setOrders((prev) =>
         prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
@@ -509,3 +509,4 @@ function OrderDetail({ order, onUpdateStatus, updatingId, onOpenPayment }) {
     </>
   );
 }
+
