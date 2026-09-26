@@ -50,13 +50,11 @@ export default function UserManager() {
     e.preventDefault();
     try {
       if (editingUser) {
-        // Update
         const payload = { name: formData.name };
         if (formData.password) payload.password = formData.password;
         await api.patch('/users/' + editingUser.id, payload);
         toast.success('Akun berhasil diubah');
       } else {
-        // Create
         await api.post('/users', formData);
         toast.success('Akun baru berhasil dibuat');
       }
@@ -118,7 +116,7 @@ export default function UserManager() {
                   <td className="px-6 py-4 font-medium text-gray-900">{u.name}</td>
                   <td className="px-6 py-4">{u.email}</td>
                   <td className="px-6 py-4">
-                    <span className={\ounded-full px-2.5 py-1 text-xs font-semibold \\}>
+                    <span className={'rounded-full px-2.5 py-1 text-xs font-semibold ' + (u.role === 'ADMIN' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700')}>
                       {u.role}
                     </span>
                   </td>
