@@ -63,6 +63,7 @@ app.use((req, _res, next) => {
 
 // ─── Routes ─────────────────────────────────────────────────────────────────
 const apiRouter = require('./routes/api');
+const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
 const categoryRouter = require('./routes/categories');
 const qrRouter = require('./routes/qr');
@@ -82,6 +83,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/categories', categoryRouter);
 app.use('/api/qr', qrRouter);
 app.use('/api', apiRouter);
+app.use('/api/users', usersRouter);
 
 // ─── Health Check ───────────────────────────────────────────────────────────
 app.get('/health', (_req, res) => {
