@@ -159,6 +159,9 @@ const start = async () => {
   }
 };
 
-start();
-
-module.exports = { app, io, prisma };
+if (process.env.VERCEL) {
+  module.exports = app;
+} else {
+  start();
+  module.exports = { app, io, prisma };
+}
