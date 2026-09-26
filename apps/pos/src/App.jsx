@@ -10,11 +10,11 @@ import LoginPage from './components/LoginPage.jsx';
 import { useAuth } from './hooks/useAuth.jsx';
 
 const NAV_ITEMS = [
-  { id: 'cashier', label: 'Kasir', icon: '🧾' },
+  { id: 'cashier', label: 'Kasir', icon: '💰' },
   { id: 'menu', label: 'Menu', icon: '🍽️' },
   { id: 'tables', label: 'Meja', icon: '🪑' },
-  { id: 'reports', label: 'Laporan', icon: '??' },
-  { id: 'users', label: 'Akun', icon: '??' },
+  { id: 'reports', label: 'Laporan', icon: '📊' },
+  { id: 'users', label: 'Akun', icon: '👥' },
 ];
 
 export default function App() {
