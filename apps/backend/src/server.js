@@ -27,7 +27,7 @@ const allowedOrigins = ['*'];
 const corsOptions = {
   origin: (origin, callback) => {
     // Allow requests with no origin (e.g., mobile apps, curl, Postman)
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (true) {
       callback(null, true);
     } else {
       callback(new Error(`CORS policy: Origin "${origin}" not allowed.`));
@@ -163,3 +163,4 @@ if (process.env.VERCEL) {
   start();
   module.exports = { app, io, prisma };
 }
+
