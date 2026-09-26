@@ -5,6 +5,7 @@ import CashierView from './components/CashierView.jsx';
 import MenuManager from './components/MenuManager.jsx';
 import TableManager from './components/TableManager.jsx';
 import ReportsDashboard from './components/ReportsDashboard.jsx';
+import UserManager from './components/UserManager.jsx';
 import LoginPage from './components/LoginPage.jsx';
 import { useAuth } from './hooks/useAuth.jsx';
 
@@ -12,7 +13,8 @@ const NAV_ITEMS = [
   { id: 'cashier', label: 'Kasir', icon: '🧾' },
   { id: 'menu', label: 'Menu', icon: '🍽️' },
   { id: 'tables', label: 'Meja', icon: '🪑' },
-  { id: 'reports', label: 'Laporan', icon: '📊' },
+  { id: 'reports', label: 'Laporan', icon: '??' },
+  { id: 'users', label: 'Akun', icon: '??' },
 ];
 
 export default function App() {
@@ -51,7 +53,7 @@ export default function App() {
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           <ul className="space-y-1">
             {NAV_ITEMS.map((item) => {
-              if (user?.role === 'CASHIER' && !['cashier', 'tables'].includes(item.id)) {
+              if (user?.role === 'CASHIER' && !['cashier', 'tables', 'reports'].includes(item.id)) {
                 return null; // Hide Menu & Reports from Cashier
               }
               return (
@@ -120,6 +122,7 @@ export default function App() {
           {activeTab === 'menu' && <MenuManager />}
           {activeTab === 'tables' && <TableManager />}
           {activeTab === 'reports' && <ReportsDashboard />}
+          {activeTab === 'users' && <UserManager />}
         </div>
       </main>
     </div>
