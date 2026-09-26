@@ -13,7 +13,9 @@
     "dev:qr": "npm run dev --workspace=apps/qr-web",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:pos\" \"npm run dev:qr\"",
     "db:migrate": "npm run migrate --workspace=apps/backend",
-    "db:seed": "npm run seed --workspace=apps/backend"
+    "db:seed": "npm run seed --workspace=apps/backend",
+    "build": "npm install && npm run generate --workspace=apps/backend && npx prisma db push --schema=apps/backend/prisma/schema.prisma && npm run seed --workspace=apps/backend",
+    "start": "npm run start --workspace=apps/backend"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
