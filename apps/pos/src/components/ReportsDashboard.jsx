@@ -49,7 +49,7 @@ export default function ReportsDashboard() {
     return orderDate >= dateFrom && orderDate <= dateTo;
   });
 
-  const paidOrders = filteredOrders.filter((o) => o.status === 'PAID');
+  const paidOrders = filteredOrders.filter((o) => ['PAID', 'PREPARING', 'READY', 'SERVED'].includes(o.status));
   const cancelledOrders = filteredOrders.filter((o) => o.status === 'CANCELLED');
   const totalRevenue = paidOrders.reduce((acc, o) => acc + Number(o.totalAmount), 0);
   const avgOrderValue = paidOrders.length > 0 ? totalRevenue / paidOrders.length : 0;
