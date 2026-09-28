@@ -64,7 +64,7 @@ export default function CheckoutModal({
     if (orderStatus === 'qris' && internalOrderId) {
       interval = setInterval(async () => {
         try {
-          const res = await fetch(`${BACKEND_URL}/api/orders/${internalOrderId}`);
+          const res = await fetch(`${BACKEND_URL}/api/orders/${internalOrderId}?t=${Date.now()}`);
           const data = await res.json();
           if (data.success && data.data.status === 'PAID') {
             setOrderStatus('success_qris');

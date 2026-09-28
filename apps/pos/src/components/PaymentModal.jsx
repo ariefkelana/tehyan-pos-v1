@@ -59,7 +59,7 @@ export default function PaymentModal({ order, onClose, onSuccess }) {
     if (isWaitingQris && order?.id) {
       interval = setInterval(async () => {
         try {
-          const { data } = await api.get(`/orders/${order.id}`);
+          const { data } = await api.get(`/orders/${order.id}?t=${Date.now()}`);
           if (data.success && data.data.status === 'PAID') {
             toast.success('Pembayaran QRIS Berhasil Masuk!');
             setPrintData({ payment: { orderId: order.id, method: 'QRIS', amount: total, change: 0, status: 'PAID' } });
