@@ -61,7 +61,7 @@ export default function CheckoutModal({
   // Poll status for Vercel Serverless compatibility
   useEffect(() => {
     let interval;
-    if (orderStatus === 'waiting_qris' && internalOrderId) {
+    if (orderStatus === 'qris' && internalOrderId) {
       interval = setInterval(async () => {
         try {
           const res = await fetch(`${BACKEND_URL}/api/orders/${internalOrderId}`);
@@ -118,6 +118,7 @@ export default function CheckoutModal({
       if (!res.ok) throw new Error(data.message || 'Gagal membuat pesanan');
 
       setConfirmedOrderNumber(data.data.orderNumber);
+      setInternalOrderId(data.data.id);
       setInternalOrderId(data.data.id);
 
       if (method === 'QRIS') {
