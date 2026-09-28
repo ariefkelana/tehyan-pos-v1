@@ -89,7 +89,7 @@ export default function CheckoutModal({
             productId: item.product.id,
             quantity: item.quantity,
             notes: '',
-            modifiers: item.selectedMods
+            modifiers: item.selectedMods ? JSON.stringify(item.selectedMods) : null
           })),
         }),
       });
