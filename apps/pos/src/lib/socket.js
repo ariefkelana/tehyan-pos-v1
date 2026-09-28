@@ -4,7 +4,8 @@ const API = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_URL || 'ht
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || API.replace(/\/api$/, '');
 
 const socket = io(SOCKET_URL, {
-  transports: ['websocket', 'polling'],
+  transports: ['polling'],
+  upgrade: false,
   autoConnect: false,
   reconnectionAttempts: 15,
   reconnectionDelay: 1500,
