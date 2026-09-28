@@ -80,7 +80,7 @@ export default function CashierView() {
   // ── Socket.io Connection ──────────────────────────────────────────────────
   useEffect(() => {
     const socket = io(SOCKET_URL, {
-      transports: ['websocket', 'polling'],
+      transports: ['polling'], upgrade: false,
       reconnectionAttempts: 10,
       reconnectionDelay: 1500,
     });
