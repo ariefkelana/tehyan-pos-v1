@@ -52,6 +52,25 @@ export default function PaymentModal({ order, onClose, onSuccess }) {
      }
   }, [isWaitingQris, order.id, total]);
 
+
+  // Poll status for Vercel Serverless compatibility
+  useEffect(() => {
+    let interval;
+    if (isWaitingQris && order?.id) {
+      interval = setInterval(async () => {
+        try {
+          const { data } = await api.get(`/orders/${order.id}`);
+          if (data.success && data.data.status === 'PAID') {
+            toast.success('Pembayaran QRIS Berhasil Masuk!');
+            setPrintData({ payment: { orderId: order.id, method: 'QRIS', amount: total, change: 0, status: 'PAID' } });
+            clearInterval(interval);
+          }
+        } catch (e) {}
+      }, 3000);
+    }
+    return () => clearInterval(interval);
+  }, [isWaitingQris, order?.id, total, setPrintData]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canSubmit) return;

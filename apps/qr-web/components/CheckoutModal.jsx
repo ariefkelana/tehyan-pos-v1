@@ -57,6 +57,26 @@ export default function CheckoutModal({
     };
   }, [table.id, orderStatus]);
 
+
+  // Poll status for Vercel Serverless compatibility
+  useEffect(() => {
+    let interval;
+    if (orderStatus === 'waiting_qris' && internalOrderId) {
+      interval = setInterval(async () => {
+        try {
+          const res = await fetch(`${BACKEND_URL}/api/orders/${internalOrderId}`);
+          const data = await res.json();
+          if (data.success && data.data.status === 'PAID') {
+            setOrderStatus('success_qris');
+            clearInterval(interval);
+          }
+        } catch (e) {}
+      }, 3000);
+    }
+    return () => clearInterval(interval);
+  }, [orderStatus, internalOrderId]);
+
+
   const handleOverlayClick = (e) => {
     if (e.target === overlayRef.current) {
       if (orderStatus === null || orderStatus === 'error') {
