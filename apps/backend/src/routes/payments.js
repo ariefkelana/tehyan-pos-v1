@@ -19,7 +19,7 @@ router.post('/qris', async (req, res) => {
 
     const midtransOrderId = 'ORDER-' + order.id + '-' + Date.now();
     const parameter = {
-      payment_type: 'qris',
+      payment_type: 'gopay',
       transaction_details: { order_id: midtransOrderId, gross_amount: Math.round(Number(order.totalAmount)) },
       custom_field1: order.id.toString()
     };

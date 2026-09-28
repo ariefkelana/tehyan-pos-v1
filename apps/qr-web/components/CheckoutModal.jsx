@@ -25,7 +25,7 @@ export default function CheckoutModal({
   const [notes, setNotes] = useState('');
   const [waNumber, setWaNumber] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [orderStatus, setOrderStatus] = useState(null); // null | 'success' | 'qris' | 'success_qris' | 'error'
+  const [orderStatus, setOrderStatus] = useState(null); 
   const [errorMsg, setErrorMsg] = useState('');
   const [confirmedOrderNumber, setConfirmedOrderNumber] = useState('');
   const [qrUrl, setQrUrl] = useState('');
@@ -39,11 +39,9 @@ export default function CheckoutModal({
   useEffect(() => {
     socketRef.current = io(BACKEND_URL, { transports: ['polling'], upgrade: false });
     
-    // Join table room
     socketRef.current.emit('join:table', table.id);
 
     socketRef.current.on('order:confirmed', (data) => {
-      // Normal flow (Cashier)
       if (orderStatus === 'submitting_cashier') {
          setConfirmedOrderNumber(data.orderNumber);
          setOrderStatus('success');
@@ -51,7 +49,6 @@ export default function CheckoutModal({
     });
 
     socketRef.current.on('order:paid', (data) => {
-      // QRIS paid flow
       setOrderStatus('success_qris');
     });
 
@@ -60,7 +57,6 @@ export default function CheckoutModal({
     };
   }, [table.id, orderStatus]);
 
-  // Click outside to close (only if not success/qris screens)
   const handleOverlayClick = (e) => {
     if (e.target === overlayRef.current) {
       if (orderStatus === null || orderStatus === 'error') {
@@ -82,8 +78,7 @@ export default function CheckoutModal({
     setErrorMsg('');
 
     try {
-      // 1. Submit Order
-      const res = await fetch(\\/api/orders\, {
+      const res = await fetch(`${BACKEND_URL}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -105,9 +100,8 @@ export default function CheckoutModal({
       setConfirmedOrderNumber(data.data.orderNumber);
       setInternalOrderId(data.data.id);
 
-      // 2. If QRIS, fetch QR code
       if (method === 'QRIS') {
-        const qrisRes = await fetch(\\/api/payments/qris\, {
+        const qrisRes = await fetch(`${BACKEND_URL}/api/payments/qris`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ orderId: data.data.id })
@@ -129,7 +123,6 @@ export default function CheckoutModal({
     }
   };
 
-  // Screens
   if (orderStatus === 'success') {
     return (
       <ModalOverlay ref={overlayRef} onClick={() => {}}>
@@ -198,7 +191,6 @@ export default function CheckoutModal({
     );
   }
 
-  // Main Cart
   return (
     <ModalOverlay ref={overlayRef} onClick={handleOverlayClick}>
       <div className="flex max-h-[85vh] flex-col">
@@ -219,7 +211,7 @@ export default function CheckoutModal({
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-zinc-900">{product.name}</p>
                   {selectedMods && selectedMods.length > 0 && (
-                    <p className="text-[11px] font-medium text-gray-500 mt-0.5">{selectedMods.map(m => ${m.name}: ).join(', ')}</p>
+                    <p className="text-[11px] font-medium text-gray-500 mt-0.5">{selectedMods.map(m => `${m.name}: ${m.optionName}`).join(', ')}</p>
                   )}
                   <p className="text-xs font-semibold text-emerald-600 mt-1">{formatRupiah(unitPrice)}</p>
                 </div>
@@ -255,7 +247,7 @@ export default function CheckoutModal({
                disabled={isSubmitting || cartItems.length === 0}
                className={clsx('flex w-full items-center justify-center rounded-2xl py-4 text-sm font-bold transition-transform', isSubmitting ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 active:scale-95')}
              >
-               {isSubmitting ? 'Memproses...' : Bayar via QRIS ⚡ }
+               {isSubmitting ? 'Memproses...' : `Bayar via QRIS ⚡ ${formatRupiah(cartTotal)}`}
              </button>
              
              <button
@@ -263,7 +255,7 @@ export default function CheckoutModal({
                disabled={isSubmitting || cartItems.length === 0}
                className={clsx('flex w-full items-center justify-center rounded-2xl py-3 text-sm font-bold transition-transform', isSubmitting ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 active:scale-95')}
              >
-               {isSubmitting ? 'Memproses...' : Bayar di Kasir (Tunai/Kartu)}
+               {isSubmitting ? 'Memproses...' : `Bayar di Kasir (Tunai/Kartu)`}
              </button>
           </div>
         </div>
