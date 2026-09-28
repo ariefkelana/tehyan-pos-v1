@@ -1,7 +1,6 @@
-﻿'use strict';
+'use strict';
 const express = require('express');
 const midtransClient = require('midtrans-client');
-const { requireAuth } = require('../middleware/auth');
 const router = express.Router();
 
 const coreApi = new midtransClient.CoreApi({
@@ -14,26 +13,18 @@ router.post('/qris', async (req, res) => {
   try {
     const { orderId } = req.body;
     if (!orderId) return res.status(400).json({ success: false, message: 'orderId is required' });
-
-    const order = await req.prisma.order.findUnique({
-      where: { id: parseInt(orderId, 10) }
-    });
-
+    const order = await req.prisma.order.findUnique({ where: { id: parseInt(orderId, 10) } });
     if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
     if (order.status === 'PAID') return res.status(400).json({ success: false, message: 'Order is already paid' });
 
-    const midtransOrderId = ORDER-\-\;
+    const midtransOrderId = 'ORDER-' + order.id + '-' + Date.now();
     const parameter = {
       payment_type: 'qris',
-      transaction_details: {
-        order_id: midtransOrderId,
-        gross_amount: Math.round(Number(order.totalAmount))
-      },
+      transaction_details: { order_id: midtransOrderId, gross_amount: Math.round(Number(order.totalAmount)) },
       custom_field1: order.id.toString()
     };
 
     const response = await coreApi.charge(parameter);
-
     if (response.status_code === '201') {
       const qrUrl = response.actions?.find(a => a.name === 'generate-qr-code')?.url;
       await req.prisma.payment.upsert({
@@ -46,7 +37,6 @@ router.post('/qris', async (req, res) => {
       res.status(500).json({ success: false, message: 'Gagal membuat QRIS', error: response });
     }
   } catch (err) {
-    console.error('[Midtrans] Error generating QRIS:', err);
     res.status(500).json({ success: false, message: err.message });
   }
 });
@@ -67,23 +57,16 @@ router.post('/webhook', express.json(), async (req, res) => {
     }
 
     if (paymentStatus === 'PAID') {
-      await req.prisma.\(async (tx) => {
-        await tx.payment.update({
-          where: { orderId: internalOrderId },
-          data: { status: 'PAID', paidAt: new Date() }
-        });
-        await tx.order.update({
-          where: { id: internalOrderId },
-          data: { status: 'PAID' }
-        });
+      await req.prisma.$transaction(async (tx) => {
+        await tx.payment.update({ where: { orderId: internalOrderId }, data: { status: 'PAID', paidAt: new Date() } });
+        await tx.order.update({ where: { id: internalOrderId }, data: { status: 'PAID' } });
       });
       req.io.to('cashier-room').emit('order:updated', { id: internalOrderId, status: 'PAID' });
       const order = await req.prisma.order.findUnique({ where: { id: internalOrderId } });
-      if (order) req.io.to(	able-\).emit('order:paid', { id: internalOrderId });
+      if (order) req.io.to('table-' + order.tableId).emit('order:paid', { id: internalOrderId });
     }
     res.status(200).send('OK');
   } catch (err) {
-    console.error('[Midtrans] Webhook error:', err);
     res.status(500).send('Error');
   }
 });
