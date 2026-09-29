@@ -1,6 +1,7 @@
 // File: apps/qr-web/app/layout.jsx
 
 import './globals.css';
+import BackgroundMural from '../components/BackgroundMural.jsx';
 
 export const metadata = {
   title: 'Kedai Teh Yan',
@@ -15,9 +16,9 @@ export default function RootLayout({ children }) {
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Merriweather:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Merriweather:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />`n        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
       </head>
-      <body className="min-h-screen bg-wall-texture font-sans text-gray-800">
+      <body className="min-h-screen bg-transparent font-sans text-gray-800 relative z-0">`n        <BackgroundMural opacity="opacity-10" />
         {/* Global top brand bar */}
         <header className="sticky top-0 z-40 bg-[rgba(245,242,235,0.9)] backdrop-blur px-4 py-3 shadow-sm border-b border-gray-200">
           <div className="mx-auto flex max-w-lg items-center gap-2">

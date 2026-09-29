@@ -7,6 +7,7 @@ import TableManager from './components/TableManager.jsx';
 import ReportsDashboard from './components/ReportsDashboard.jsx';
 import UserManager from './components/UserManager.jsx';
 import LoginPage from './components/LoginPage.jsx';
+import BackgroundMural from './components/BackgroundMural.jsx';
 import { useAuth } from './hooks/useAuth.jsx';
 
 const NAV_ITEMS = [
@@ -37,7 +38,7 @@ export default function App() {
   if (!isAuthenticated) return <LoginPage />;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-100">
+    <div className="flex h-screen overflow-hidden relative bg-transparent z-0"`n      <BackgroundMural opacity="opacity-15" />>
       {/* ── Sidebar ─────────────────────────────────────────────── */}
       <aside className="hidden md:flex w-56 flex-col bg-wall-texture border-r border-gray-200 shadow-xl z-20">
         {/* Brand */}
