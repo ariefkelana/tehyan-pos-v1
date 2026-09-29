@@ -10,7 +10,6 @@
  *  - latestOrderNumber: string | null
  */
 import React, { useEffect, useRef, useState } from 'react';
-import { io } from 'socket.io-client';
 import clsx from 'clsx';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
@@ -60,8 +59,7 @@ export default function OrderStatusBanner({ tableId, latestOrderNumber }) {
   const [orderStatus, setOrderStatus] = useState(null);
   const [orderNumber, setOrderNumber] = useState(latestOrderNumber ?? null);
   const [isVisible, setIsVisible] = useState(!!latestOrderNumber);
-  const socketRef = useRef(null);
-
+  
   // Sync prop changes to local state
   useEffect(() => {
     if (latestOrderNumber) {
@@ -72,31 +70,26 @@ export default function OrderStatusBanner({ tableId, latestOrderNumber }) {
   }, [latestOrderNumber]);
 
   useEffect(() => {
-    if (!tableId) return;
+    if (!tableId || !orderNumber) return;
 
-    const socket = io(BACKEND_URL, { transports: ['websocket', 'polling'] });
-    socketRef.current = socket;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/tables/${tableId}`);
+        if (res.ok) {
+           const data = await res.json();
+           // Find the order that matches orderNumber
+           const matchingOrder = data.data.orders?.find(o => o.orderNumber === orderNumber);
+           if (matchingOrder) {
+              setOrderStatus(matchingOrder.status);
+           }
+        }
+      } catch (e) {
+        // ignore
+      }
+    }, 5000);
 
-    socket.emit('join:table', tableId);
-
-    socket.on('order:confirmed', ({ orderNumber: num, status }) => {
-      setOrderNumber(num);
-      setOrderStatus(status ?? 'PENDING');
-      setIsVisible(true);
-    });
-
-    socket.on('order:status-updated', ({ orderNumber: num, status }) => {
-      setOrderNumber(num);
-      setOrderStatus(status);
-      setIsVisible(true);
-    });
-
-    socket.on('order:paid', () => {
-      setOrderStatus('PAID');
-    });
-
-    return () => socket.disconnect();
-  }, [tableId]);
+    return () => clearInterval(interval);
+  }, [tableId, orderNumber]);
 
   if (!isVisible || !orderStatus) return null;
 

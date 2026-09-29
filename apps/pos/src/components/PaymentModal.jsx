@@ -3,7 +3,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import clsx from 'clsx';
 import toast from 'react-hot-toast';
 import api from '../lib/api.js';
-import socket from '../lib/socket.js';
 import PrintReceipt from './PrintReceipt.jsx';
 
 const PAYMENT_METHODS = [
@@ -39,18 +38,7 @@ export default function PaymentModal({ order, onClose, onSuccess }) {
     }
   }, [method, printData, isWaitingQris]);
 
-  useEffect(() => {
-     if (isWaitingQris) {
-         const handleOrderUpdated = (data) => {
-            if (data.id === order.id && data.status === 'PAID') {
-               toast.success('Pembayaran QRIS Berhasil Masuk!');
-               setPrintData({ payment: { orderId: order.id, method: 'QRIS', amount: total, change: 0, status: 'PAID' } });
-            }
-         };
-         socket.on('order:updated', handleOrderUpdated);
-         return () => socket.off('order:updated', handleOrderUpdated);
-     }
-  }, [isWaitingQris, order.id, total]);
+  
 
 
   // Poll status for Vercel Serverless compatibility
