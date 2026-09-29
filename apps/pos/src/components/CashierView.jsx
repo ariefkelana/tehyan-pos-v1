@@ -54,8 +54,7 @@ export default function CashierView() {
   const [paymentOrder, setPaymentOrder] = useState(null); // order to pay
 
   
-  const audioRef = useRef(null);
-
+  
   // ── Fetch existing orders on mount ────────────────────────────────────────
   const fetchOrders = useCallback(async (isPolling = false) => {
     try {
@@ -84,68 +83,10 @@ export default function CashierView() {
     }, 10000);
 
     // ── New order from customer ─────────────────────────────────────────────
-    socket.on('new-order', (newOrder) => {
-      console.log('[Socket.io] new-order received:', newOrder);
-
-      // Play notification sound
-      audioRef.current?.play().catch(() => {});
-
-      toast.custom(
-        (t) => (
-          <div
-            className={clsx(
-              'flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 shadow-lg',
-              t.visible ? 'animate-enter' : 'animate-leave'
-            )}
-          >
-            <span className="text-2xl">🔔</span>
-            <div>
-              <p className="font-semibold text-amber-900">Pesanan Baru!</p>
-              <p className="text-sm text-amber-800">
-                Meja {newOrder.tableNumber} · {newOrder.orderNumber}
-              </p>
-              <p className="text-xs text-amber-700">{newOrder.itemCount} item · {formatRupiah(newOrder.totalAmount)}</p>
-            </div>
-          </div>
-        ),
-        { duration: 6000 }
-      );
-
-      // Insert at the top of the list (as a lightweight preview object)
-      setOrders((prev) => [
-        {
-          id: newOrder.orderId,
-          orderNumber: newOrder.orderNumber,
-          table: { number: newOrder.tableNumber },
-          totalAmount: newOrder.totalAmount,
-          status: 'PENDING',
-          items: newOrder.items,
-          createdAt: newOrder.createdAt,
-          payment: null,
-        },
-        ...prev,
-      ]);
-    });
-
-    // ── Status update from another cashier or self ──────────────────────────
-    socket.on('order:updated', ({ orderId, status }) => {
-      setOrders((prev) =>
-        prev.map((o) => (o.id === orderId ? { ...o, status } : o))
-      );
-      setSelectedOrder((prev) => (prev?.id === orderId ? { ...prev, status } : prev));
-    });
-
-    // ── Payment completed ───────────────────────────────────────────────────
-    socket.on('payment:completed', ({ orderId }) => {
-      setOrders((prev) =>
-        prev.map((o) => (o.id === orderId ? { ...o, status: 'PAID' } : o))
-      );
-    });
-
     return () => {
-      socket.disconnect();
+      clearInterval(interval);
     };
-  }, []);
+  }, [fetchOrders]);
 
   // ── Update Order Status ───────────────────────────────────────────────────
   const handleUpdateStatus = async (orderId, newStatus) => {
@@ -177,8 +118,7 @@ export default function CashierView() {
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="flex h-full gap-4">
-      {/* Hidden audio for new order notification */}
-      <audio ref={audioRef} src="/notification.mp3" preload="auto" />
+      
 
       {/* ── Order List Panel ──────────────────────────────────────────────── */}
       <section className={`flex w-full md:w-96 flex-shrink-0 flex-col rounded-3xl md:rounded-[2rem] bg-white border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] overflow-hidden ${selectedOrder ? "hidden md:flex" : "flex"}`}>
