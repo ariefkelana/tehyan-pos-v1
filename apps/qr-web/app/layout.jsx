@@ -19,7 +19,8 @@ export default function RootLayout({ children }) {
         <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Merriweather:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
       </head>
-      <body className="min-h-screen bg-transparent font-sans text-gray-800 relative z-0">`n        <BackgroundMural opacity="opacity-10" />
+      <body className="min-h-screen bg-transparent font-sans text-gray-800 relative z-0">
+        <BackgroundMural opacity="opacity-10" />
         {/* Global top brand bar */}
         <header className="sticky top-0 z-40 bg-[rgba(245,242,235,0.9)] backdrop-blur px-4 py-3 shadow-sm border-b border-gray-200">
           <div className="mx-auto flex max-w-lg items-center gap-2">
