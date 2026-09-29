@@ -31,7 +31,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-transparent p-4 relative z-0">`n      <BackgroundMural opacity="opacity-30" />
+    <div className="flex min-h-screen items-center justify-center bg-transparent p-4 relative z-0">
+      <BackgroundMural opacity="opacity-30" />
       <div className="relative w-full max-w-sm">
         {/* Card */}
         <div className="rounded-[2rem] bg-white border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden">
