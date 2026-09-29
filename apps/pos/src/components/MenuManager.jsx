@@ -206,8 +206,8 @@ export default function MenuManager() {
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
+        <table className="w-full text-sm min-w-[700px]">
           <thead className="border-b bg-gray-50 text-xs font-semibold uppercase tracking-wider text-gray-500">
             <tr>
               <th className="px-4 py-3 text-left">Produk</th>
@@ -326,7 +326,7 @@ export default function MenuManager() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto no-scrollbar">
               {/* Name */}
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">

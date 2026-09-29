@@ -198,6 +198,7 @@ export default function CashierView() {
       <section className="flex flex-1 flex-col rounded-xl bg-white shadow-sm">
         {selectedOrder ? (
           <OrderDetail
+            onClose={() => setSelectedOrder(null)}
             order={selectedOrder}
             onUpdateStatus={handleUpdateStatus}
             updatingId={updatingId}
@@ -274,17 +275,22 @@ function OrderCard({ order, isSelected, onClick }) {
 }
 
 // ── Order Detail ────────────────────────────────────────────────────────────
-function OrderDetail({ order, onUpdateStatus, updatingId, onOpenPayment }) {
+function OrderDetail({ order, onUpdateStatus, updatingId, onOpenPayment, onClose }) {
   const nextStatus = NEXT_STATUS[order.status];
   const isUpdating = updatingId === order.id;
 
   return (
     <>
       {/* Header */}
-      <div className="flex items-center justify-between border-b px-6 py-4">
-        <div>
+      <div className="flex items-center justify-between border-b px-4 md:px-6 py-4">
+        <div className="flex items-center gap-3">
+          <button onClick={onClose} className="md:hidden flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors">
+            <i className="fa-solid fa-chevron-left"></i>
+          </button>
+          <div>
           <h2 className="font-semibold text-gray-800">{order.orderNumber}</h2>
           <p className="text-sm text-gray-500">Meja {order.table?.number ?? '—'}</p>
+        </div>
         </div>
         <span
           className={clsx(
