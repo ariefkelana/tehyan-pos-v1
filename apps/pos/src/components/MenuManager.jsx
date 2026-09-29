@@ -37,6 +37,7 @@ export default function MenuManager() {
     updateProduct,
     toggleAvailability,
     deleteProduct,
+    fetchAll,
   } = useProducts();
 
   const [search, setSearch] = useState('');
