@@ -1,7 +1,6 @@
 // File: apps/pos/src/components/CashierView.jsx
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
@@ -47,20 +46,20 @@ const formatRupiah = (amount) =>
 // ── Main Component ──────────────────────────────────────────────────────────
 export default function CashierView() {
   const [orders, setOrders] = useState([]);
-  const [isConnected, setIsConnected] = useState(false);
+  
   const [isLoading, setIsLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('ACTIVE'); // ACTIVE = everything except PAID/CANCELLED
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
   const [paymentOrder, setPaymentOrder] = useState(null); // order to pay
 
-  const socketRef = useRef(null);
+  
   const audioRef = useRef(null);
 
   // ── Fetch existing orders on mount ────────────────────────────────────────
-  const fetchOrders = useCallback(async () => {
+  const fetchOrders = useCallback(async (isPolling = false) => {
     try {
-      setIsLoading(true);
+      if (!isPolling) setIsLoading(true);
       const { data } = await api.get('/orders');
       if (data.success) {
         setOrders(data.data);
@@ -78,29 +77,11 @@ export default function CashierView() {
   }, [fetchOrders]);
 
   // ── Socket.io Connection ──────────────────────────────────────────────────
+  // Vercel Serverless REST Polling for New Orders
   useEffect(() => {
-    const socket = io(SOCKET_URL, {
-      transports: ['polling'], upgrade: false,
-      reconnectionAttempts: 10,
-      reconnectionDelay: 1500,
-    });
-
-    socketRef.current = socket;
-
-    socket.on('connect', () => {
-      setIsConnected(true);
-      socket.emit('join:cashier'); // Join the cashier room
-      console.log('[Socket.io] Joined cashier-room');
-    });
-
-    socket.on('disconnect', () => {
-      setIsConnected(false);
-      toast.error('Koneksi real-time terputus. Mencoba kembali…');
-    });
-
-    socket.on('connect_error', (err) => {
-      console.error('[Socket.io] Connection error:', err.message);
-    });
+    let interval = setInterval(() => {
+      fetchOrders(true);
+    }, 10000);
 
     // ── New order from customer ─────────────────────────────────────────────
     socket.on('new-order', (newOrder) => {
@@ -200,7 +181,7 @@ export default function CashierView() {
       <audio ref={audioRef} src="/notification.mp3" preload="auto" />
 
       {/* ── Order List Panel ──────────────────────────────────────────────── */}
-      <section className="flex w-96 flex-shrink-0 flex-col rounded-[2rem] bg-white border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] overflow-hidden">
+      <section className={`flex w-full md:w-96 flex-shrink-0 flex-col rounded-3xl md:rounded-[2rem] bg-white border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] overflow-hidden ${selectedOrder ? "hidden md:flex" : "flex"}`}>
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
           <div className="flex items-center gap-3">
@@ -213,11 +194,7 @@ export default function CashierView() {
           </div>
           <div className="flex items-center gap-3">
             <span
-              className={clsx(
-                'h-2.5 w-2.5 rounded-full',
-                isConnected ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-red-500 animate-pulse'
-              )}
-              title={isConnected ? 'Real-time aktif' : 'Terputus'}
+              className={clsx('h-2.5 w-2.5 rounded-full', 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]')} title={'Polling aktif'}
             />
             <button
               onClick={fetchOrders}

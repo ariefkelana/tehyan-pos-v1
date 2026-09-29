@@ -24,8 +24,8 @@ export default function App() {
   // Show full-screen spinner while restoring token from localStorage
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-900">
-        <div className="flex flex-col items-center gap-3 text-gray-400">
+      <div className="flex h-screen items-center justify-center bg-wall-texture">
+        <div className="flex flex-col items-center gap-3 text-gray-600">
           <span className="text-5xl animate-pulse">🍵</span>
           <p className="text-sm">Memuat…</p>
         </div>
@@ -39,13 +39,13 @@ export default function App() {
   return (
     <div className="flex h-screen overflow-hidden bg-gray-100">
       {/* ── Sidebar ─────────────────────────────────────────────── */}
-      <aside className="flex w-56 flex-col bg-gray-900 text-white shadow-xl">
+      <aside className="hidden md:flex w-56 flex-col bg-wall-texture border-r border-gray-200 shadow-xl z-20">
         {/* Brand */}
-        <div className="flex items-center gap-3 border-b border-gray-700 px-5 py-5">
-          <span className="text-2xl">🍵</span>
-          <div>
-            <p className="text-sm font-bold leading-tight">Kedai TehYan</p>
-            <p className="text-xs text-gray-400">POS System</p>
+        <div className="flex items-center justify-center p-5 border-b border-gray-200 bg-wall">
+          <div className="bg-wall border-[3px] border-mural-red p-1">
+            <div className="border-[2px] border-mural-blue px-3 py-1 bg-wall flex justify-center items-center">
+              <span className="font-cursive text-2xl font-bold text-mural-blue" style={{lineHeight: 1}}>Teh Yan</span>
+            </div>
           </div>
         </div>
 
@@ -63,8 +63,8 @@ export default function App() {
                     className={[
                       'flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors',
                       activeTab === item.id
-                        ? 'bg-emerald-500 text-white shadow-md'
-                        : 'text-gray-300 hover:bg-gray-800 hover:text-white',
+                        ? 'bg-mural-red text-white shadow-md'
+                        : 'text-gray-600 hover:bg-mural-red/10 hover:text-mural-red',
                     ].join(' ')}
                   >
                     <span className="text-lg">{item.icon}</span>
@@ -77,19 +77,19 @@ export default function App() {
         </nav>
 
         {/* Footer — user info + logout */}
-        <div className="border-t border-gray-700 px-4 py-4">
+        <div className="border-t border-gray-200 px-4 py-4">
           <div className="flex items-center gap-2 mb-3">
-            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-amber-500 text-xs font-bold text-white">
+            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-amber-500 text-xs font-bold text-gray-800">
               {user?.name?.charAt(0)?.toUpperCase() ?? '?'}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-xs font-semibold text-white">{user?.name ?? '—'}</p>
-              <p className="text-[10px] text-gray-500 uppercase">{user?.role ?? ''}</p>
+              <p className="truncate text-xs font-semibold text-gray-800">{user?.name ?? '—'}</p>
+              <p className="text-[10px] text-mural-red uppercase font-bold">{user?.role ?? ''}</p>
             </div>
           </div>
           <button
             onClick={logout}
-            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-gray-400 hover:bg-gray-800 hover:text-red-400 transition-colors"
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-800 hover:text-mural-red transition-colors"
           >
             <span>🚪</span> Keluar
           </button>
@@ -97,7 +97,7 @@ export default function App() {
       </aside>
 
       {/* ── Main Content ─────────────────────────────────────────── */}
-      <main className="flex flex-1 flex-col overflow-hidden">
+      <main className="flex flex-1 flex-col overflow-hidden pb-20 md:pb-0 relative">
         {/* Topbar */}
         <header className="flex items-center justify-between border-b bg-white px-6 py-4 shadow-sm">
           <h1 className="text-lg font-semibold text-gray-800">
@@ -117,7 +117,7 @@ export default function App() {
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6">
           {activeTab === 'cashier' && <CashierView />}
           {activeTab === 'menu' && <MenuManager />}
           {activeTab === 'tables' && <TableManager />}
@@ -125,13 +125,34 @@ export default function App() {
           {activeTab === 'users' && <UserManager />}
         </div>
       </main>
+      {/* Bottom Navigation for Mobile */}
+      <nav className="md:hidden fixed bottom-0 w-full bg-wall-texture border-t border-gray-200 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-50">
+        <ul className="flex justify-around items-center p-2">
+          {NAV_ITEMS.map((item) => {
+            if (user?.role === 'CASHIER' && !['cashier', 'tables', 'reports'].includes(item.id)) return null;
+            const isActive = activeTab === item.id;
+            return (
+              <li key={item.id} className="flex-1">
+                <button
+                  onClick={() => setActiveTab(item.id)}
+                  className={`flex flex-col items-center justify-center w-full py-2 gap-1 rounded-xl transition-colors ${isActive ? 'text-mural-red font-bold bg-mural-red/10' : 'text-gray-500'}`}
+                >
+                  <span className="text-xl">{item.icon}</span>
+                  <span className="text-[10px] uppercase tracking-wider">{item.label}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
     </div>
+
   );
 }
 
 function PlaceholderPage({ icon, title, desc }) {
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-3 text-gray-400">
+    <div className="flex h-full flex-col items-center justify-center gap-3 text-gray-600">
       <span className="text-6xl">{icon}</span>
       <p className="text-xl font-semibold text-gray-600">{title}</p>
       <p className="text-sm">{desc}</p>

@@ -30,15 +30,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-wall-texture p-4">
       <div className="relative w-full max-w-sm">
         {/* Card */}
         <div className="rounded-[2rem] bg-white border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden">
           {/* Header */}
-          <div className="bg-zinc-900 px-8 py-10 text-center">
-            <span className="text-5xl">🍵</span>
-            <h1 className="mt-4 text-2xl font-black text-white tracking-tight">Kedai TehYan</h1>
-            <p className="text-xs font-bold tracking-widest text-emerald-400 mt-1 uppercase">Sistem POS</p>
+          <div className="bg-wall-dark px-8 py-10 text-center border-b-2 border-gray-200">
+            <div className="inline-block bg-wall border-[4px] border-mural-red p-1 mb-4 shadow-sm">
+              <div className="border-[3px] border-mural-blue px-6 py-3 bg-wall flex justify-center items-center">
+                <span className="font-cursive text-5xl font-bold text-mural-blue" style={{lineHeight: 1}}>Teh Yan</span>
+              </div>
+            </div>
+            <p className="text-xs font-bold tracking-widest text-mural-red mt-1 uppercase">Sistem POS</p>
           </div>
 
           {/* Form */}
@@ -99,7 +102,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="mt-4 flex w-full items-center justify-center rounded-2xl bg-zinc-900 py-4 text-sm font-bold text-white shadow-[0_8px_30px_rgba(0,0,0,0.2)] disabled:opacity-60 disabled:cursor-not-allowed transition-transform active:scale-95"
+                className="mt-4 flex w-full items-center justify-center rounded-2xl bg-mural-red py-4 text-sm font-bold text-white shadow-lg disabled:opacity-60 disabled:cursor-not-allowed transition-transform active:scale-95 hover:bg-mural-red/90"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">

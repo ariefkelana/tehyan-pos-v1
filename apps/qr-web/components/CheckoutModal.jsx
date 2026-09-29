@@ -1,7 +1,6 @@
 ﻿'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { io } from 'socket.io-client';
 import clsx from 'clsx';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://tehyan-pos-v1-backend.vercel.app';
@@ -31,31 +30,11 @@ export default function CheckoutModal({
   const [qrUrl, setQrUrl] = useState('');
   const [internalOrderId, setInternalOrderId] = useState(null);
   
-  const socketRef = useRef(null);
-  const overlayRef = useRef(null);
+    const overlayRef = useRef(null);
 
   const cartItems = Object.values(cart);
 
-  useEffect(() => {
-    socketRef.current = io(BACKEND_URL, { transports: ['polling'], upgrade: false });
-    
-    socketRef.current.emit('join:table', table.id);
-
-    socketRef.current.on('order:confirmed', (data) => {
-      if (orderStatus === 'submitting_cashier') {
-         setConfirmedOrderNumber(data.orderNumber);
-         setOrderStatus('success');
-      }
-    });
-
-    socketRef.current.on('order:paid', (data) => {
-      setOrderStatus('success_qris');
-    });
-
-    return () => {
-      socketRef.current.disconnect();
-    };
-  }, [table.id, orderStatus]);
+  
 
 
   // Poll status for Vercel Serverless compatibility
