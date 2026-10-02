@@ -173,7 +173,7 @@ export default function CashierView() {
         </div>
 
         {/* Order Cards */}
-        <ul className="flex-1 overflow-y-auto scrollbar-thin divide-y">
+        <ul className="flex-1 overflow-y-auto scrollbar-thin divide-y min-h-0">
           {isLoading ? (
             <li className="flex items-center justify-center py-12 text-gray-400">Memuat…</li>
           ) : filteredOrders.length === 0 ? (
@@ -303,7 +303,7 @@ function OrderDetail({ order, onUpdateStatus, updatingId, onOpenPayment, onClose
       </div>
 
       {/* Items */}
-      <div className="flex-1 overflow-y-auto scrollbar-thin px-6 py-4">
+      <div className="flex-1 overflow-y-auto scrollbar-thin px-6 py-4 min-h-0">
         <h3 className="mb-3 text-sm font-medium text-gray-500 uppercase tracking-wide">Item Pesanan</h3>
         <ul className="space-y-3">
           {(order.items ?? []).map((item, idx) => (
