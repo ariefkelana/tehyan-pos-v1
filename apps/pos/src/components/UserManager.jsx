@@ -185,7 +185,8 @@ export default function UserManager() {
                 />
               </div>
 
-              {!editingUser && (
+              {/* Role always editable */}
+                (
                 <div>
                   <label className="mb-1 block text-sm font-medium text-gray-700">Peran (Role)</label>
                   <select
@@ -197,9 +198,8 @@ export default function UserManager() {
                     <option value="ADMIN">ADMIN (Pemilik)</option>
                   </select>
                 </div>
-              )}
-
-              <div className="mt-4 flex justify-end gap-3">
+              )
+                              <div className="mt-4 flex justify-end gap-3">
                 <button
                   type="button"
                   onClick={closeModal}

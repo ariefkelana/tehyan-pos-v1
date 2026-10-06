@@ -33,7 +33,8 @@ const STATUS_COLORS = {
 };
 
 const NEXT_STATUS = {
-  PAID: 'PREPARING',
+  CONFIRMED: 'PAID',
+    PAID: 'PREPARING',
   PREPARING: 'READY',
   READY: 'SERVED',
 };

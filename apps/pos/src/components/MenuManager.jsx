@@ -99,7 +99,7 @@ export default function MenuManager() {
     try {
       const payload = {
         name: form.name.trim(),
-        price: form.price,
+        price: parseFloat(form.price) || 0,
         categoryId: parseInt(form.categoryId, 10),
         description: form.description.trim() || undefined,
         imageUrl: form.imageUrl.trim() || undefined,

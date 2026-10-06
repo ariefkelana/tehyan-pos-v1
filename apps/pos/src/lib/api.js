@@ -27,7 +27,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
       console.warn('[API] Sesi habis atau akses ditolak. Membersihkan sesi...');
       localStorage.removeItem('pos_auth');
       window.location.href = '/';

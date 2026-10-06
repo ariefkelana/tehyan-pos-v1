@@ -98,7 +98,6 @@ export default function CheckoutModal({
 
       setConfirmedOrderNumber(data.data.orderNumber);
       setInternalOrderId(data.data.id);
-      setInternalOrderId(data.data.id);
 
       if (method === 'QRIS') {
         const qrisRes = await fetch(`${BACKEND_URL}/api/payments/qris`, {
@@ -165,6 +164,12 @@ export default function CheckoutModal({
           </div>
 
           <p className="text-xs text-gray-400 mt-2 animate-pulse">Menunggu pembayaran otomatis masuk...</p>
+          <button
+            onClick={() => { setOrderStatus('success'); }}
+            className="mt-3 w-full rounded-2xl bg-gray-100 py-3 text-sm font-bold text-gray-600 active:scale-95 transition-transform"
+          >
+            Bayar di Kasir (Lewati QRIS)
+          </button>
         </div>
       </ModalOverlay>
     );
