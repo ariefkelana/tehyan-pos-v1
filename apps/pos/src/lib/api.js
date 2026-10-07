@@ -1,35 +1,20 @@
-﻿import axios from 'axios';
+import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://tehyan-pos-v1-backend.vercel.app/api',
+  baseURL: import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api',
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' },
 });
 
-api.interceptors.request.use(
-  (config) => {
-    try {
-      const stored = localStorage.getItem('pos_auth');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed && parsed.token) {
-          config.headers.Authorization = 'Bearer ' + parsed.token;
-        }
-      }
-    } catch (err) {
-      // ignore
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+// The Authorization header is now managed globally by Firebase in useAuth.jsx
+// No need for request interceptor reading from localStorage anymore.
 
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
       console.warn('[API] Sesi habis atau akses ditolak. Membersihkan sesi...');
-      localStorage.removeItem('pos_auth');
+      // Firebase auth handles session state, but we can redirect just in case
       window.location.href = '/';
       return new Promise(() => {});
     }
