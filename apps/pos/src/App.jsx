@@ -119,7 +119,7 @@ export default function App() {
         </header>
 
         {/* Page Content */}
-        <div className={`flex-1 p-4 md:p-6 ${activeTab === "cashier" ? "overflow-hidden" : "overflow-y-auto"}`}>
+        <div className={`flex-1 w-full min-w-0 p-4 md:p-6 ${activeTab === "cashier" ? "overflow-hidden" : "overflow-y-auto overflow-x-hidden"}`}>
           {activeTab === 'cashier' && <CashierView />}
           {activeTab === 'menu' && <MenuManager />}
           {activeTab === 'tables' && <TableManager />}

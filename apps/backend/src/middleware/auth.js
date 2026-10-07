@@ -1,23 +1,13 @@
 // File: apps/backend/src/middleware/auth.js
 'use strict';
 
-const jwt = require('jsonwebtoken');
-
-const JWT_SECRET = process.env.JWT_SECRET || 'tehyan-super-secret-change-in-production';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '8h';
+const admin = require('../lib/firebase');
 
 /**
- * Sign a JWT token for a user.
- * @param {object} payload - { id, email, role, name }
- * @returns {string} signed token
+ * Express middleware — verifies Firebase ID token from Authorization header.
+ * Attaches user from Prisma to req.user.
  */
-const signToken = (payload) => jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
-
-/**
- * Express middleware — verifies Bearer JWT from Authorization header.
- * Attaches decoded payload to req.user.
- */
-const requireAuth = (req, res, next) => {
+const requireAuth = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ success: false, message: 'Akses ditolak. Token tidak ditemukan.' });
@@ -25,14 +15,15 @@ const requireAuth = (req, res, next) => {
 
   const token = authHeader.slice(7);
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded;
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    const user = await req.prisma.user.findUnique({ where: { id: decodedToken.uid } });
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Pengguna tidak ditemukan di database.' });
+    }
+    req.user = user;
     next();
   } catch (err) {
-    if (err.name === 'TokenExpiredError') {
-      return res.status(401).json({ success: false, message: 'Sesi habis. Silakan login kembali.' });
-    }
-    return res.status(401).json({ success: false, message: 'Token tidak valid.' });
+    return res.status(401).json({ success: false, message: 'Token tidak valid atau sudah kadaluarsa.' });
   }
 };
 
@@ -47,4 +38,4 @@ const requireAdmin = (req, res, next) => {
   next();
 };
 
-module.exports = { signToken, requireAuth, requireAdmin };
+module.exports = { requireAuth, requireAdmin };

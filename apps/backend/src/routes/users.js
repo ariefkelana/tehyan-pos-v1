@@ -1,9 +1,9 @@
 'use strict';
 
 const express = require('express');
-const bcrypt = require('bcryptjs');
 const { body, validationResult } = require('express-validator');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
+const admin = require('../lib/firebase');
 
 const router = express.Router();
 
@@ -45,13 +45,14 @@ router.post('/', requireAuth, requireAdmin, [
       return res.status(400).json({ success: false, message: 'Email sudah terdaftar' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const userRecord = await admin.auth().createUser({ email, password, displayName: name });
     const user = await req.prisma.user.create({
-      data: { name, email, password: hashedPassword, role }
+      data: { id: userRecord.uid, name, email, role }
     });
 
     res.status(201).json({ success: true, data: { id: user.id, name, email, role } });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ success: false, message: 'Gagal membuat akun' });
   }
 });
@@ -65,16 +66,33 @@ router.patch('/:id', requireAuth, requireAdmin, [
 
   try {
     const { name, password } = req.body;
+    
+    // Update Firebase user if name or password is provided
+    const updateData = {};
+    if (name) updateData.displayName = name;
+    if (password) updateData.password = password;
+    
+    if (Object.keys(updateData).length > 0) {
+      await admin.auth().updateUser(req.params.id, updateData);
+    }
+
+    // Update Prisma user
     const data = {};
     if (name) data.name = name;
-    if (password) data.password = await bcrypt.hash(password, 10);
 
-    const user = await req.prisma.user.update({
-      where: { id: parseInt(req.params.id, 10) },
-      data
-    });
+    let user;
+    if (Object.keys(data).length > 0) {
+      user = await req.prisma.user.update({
+        where: { id: req.params.id },
+        data
+      });
+    } else {
+      user = await req.prisma.user.findUnique({ where: { id: req.params.id } });
+    }
+    
     res.json({ success: true, data: { id: user.id, name: user.name, email: user.email, role: user.role } });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ success: false, message: 'Gagal mengubah akun' });
   }
 });
@@ -82,16 +100,19 @@ router.patch('/:id', requireAuth, requireAdmin, [
 // DELETE /api/users/:id
 router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
-    if (parseInt(req.params.id, 10) === req.user.id) {
+    if (req.params.id === req.user.id) {
       return res.status(400).json({ success: false, message: 'Tidak dapat menghapus akun Anda sendiri' });
     }
     await req.prisma.user.delete({
-      where: { id: parseInt(req.params.id, 10) }
+      where: { id: req.params.id }
     });
+    await admin.auth().deleteUser(req.params.id);
     res.json({ success: true, message: 'Akun berhasil dihapus' });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ success: false, message: 'Gagal menghapus akun' });
   }
 });
 
 module.exports = router;
+

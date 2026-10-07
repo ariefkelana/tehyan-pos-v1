@@ -1,12 +1,7 @@
-// File: apps/pos/src/hooks/useAuth.js
-/**
- * useAuth — manages authentication state for the POS app.
- * Persists token in localStorage and provides login/logout helpers.
- */
 import { useState, useEffect, useCallback, createContext, useContext } from 'react';
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { auth } from '../lib/firebase';
 import api from '../lib/api.js';
-
-const AUTH_KEY = 'pos_auth';
 
 // ── Context ──────────────────────────────────────────────────────────────────
 export const AuthContext = createContext(null);
@@ -20,55 +15,47 @@ export function useAuth() {
 // ── Provider ──────────────────────────────────────────────────────────────────
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Restore session on mount
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(AUTH_KEY);
-      if (stored) {
-        const { token: t, user: u } = JSON.parse(stored);
-        if (t && u) {
-          setToken(t);
-          setUser(u);
-          // Inject into Axios default headers
-          api.defaults.headers.common['Authorization'] = `Bearer ${t}`;
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        try {
+          const token = await firebaseUser.getIdToken();
+          api.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+          
+          const res = await api.get('/auth/me');
+          setUser({
+            ...firebaseUser,
+            ...res.data?.data
+          });
+        } catch (error) {
+          console.error('Failed to fetch user profile:', error);
+          setUser(null);
+          delete api.defaults.headers.common['Authorization'];
         }
+      } else {
+        setUser(null);
+        delete api.defaults.headers.common['Authorization'];
       }
-    } catch {
-      localStorage.removeItem(AUTH_KEY);
-    } finally {
       setIsLoading(false);
-    }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const login = useCallback(async (email, password) => {
-    const { data: res } = await api.post('/auth/login', { email, password });
-    if (!res.success) throw new Error(res.message);
-
-    const { token: t, user: u } = res.data;
-    setToken(t);
-    setUser(u);
-    api.defaults.headers.common['Authorization'] = `Bearer ${t}`;
-    localStorage.setItem(AUTH_KEY, JSON.stringify({ token: t, user: u }));
-    return u;
+    return await signInWithEmailAndPassword(auth, email, password);
   }, []);
 
   const logout = useCallback(async () => {
-    try {
-      await api.post('/auth/logout');
-    } catch { /* ignore network errors on logout */ }
-    setToken(null);
-    setUser(null);
-    delete api.defaults.headers.common['Authorization'];
-    localStorage.removeItem(AUTH_KEY);
+    await signOut(auth);
   }, []);
 
-  const isAuthenticated = !!token && !!user;
+  const isAuthenticated = !!user;
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, isAuthenticated, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
