@@ -13,12 +13,10 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
-      console.warn('[API] Sesi habis atau akses ditolak. Membersihkan sesi...');
-      // Firebase auth handles session state, but we can redirect just in case
-      window.location.href = '/';
-      return new Promise(() => {});
+      console.warn('[API] Sesi habis atau akses ditolak. Backend mengembalikan 401.');
+      // WE REMOVED window.location.href = '/' TO PREVENT INFINITE RELOAD LOOPS.
+      // useAuth.jsx catch block will handle logging them out gracefully now!
     }
-
     const message = error.response?.data?.message || error.message || 'Terjadi kesalahan jaringan.';
     console.error('[API Error]', message);
     return Promise.reject(new Error(message));
