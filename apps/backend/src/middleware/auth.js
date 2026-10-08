@@ -1,10 +1,9 @@
-// File: apps/backend/src/middleware/auth.js
 'use strict';
 
 const admin = require('../lib/firebase');
 
 /**
- * Express middleware — verifies Firebase ID token from Authorization header.
+ * Express middleware ?" verifies Firebase ID token from Authorization header.
  * Attaches user from Prisma to req.user.
  */
 const requireAuth = async (req, res, next) => {
@@ -23,12 +22,13 @@ const requireAuth = async (req, res, next) => {
     req.user = user;
     next();
   } catch (err) {
+    console.error('Y"" AUTH MIDDLEWARE ERROR:', err); // ADDED THIS LINE FOR DEBUGGING
     return res.status(401).json({ success: false, message: 'Token tidak valid atau sudah kadaluarsa.' });
   }
 };
 
 /**
- * Middleware — requires user to have ADMIN role.
+ * Middleware ?" requires user to have ADMIN role.
  * Must be used AFTER requireAuth.
  */
 const requireAdmin = (req, res, next) => {
