@@ -161,28 +161,44 @@ export default function TableManager() {
               className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl text-center"
               onClick={(e) => e.stopPropagation()}
             >
-              <span className="text-5xl">📱</span>
+              <div className="flex justify-center mb-4">
+                <img 
+                  src={`${import.meta.env.VITE_BACKEND_URL}/api/qr/${qrTableId}?size=400`} 
+                  alt={`QR Code Meja ${table?.number}`}
+                  className="w-48 h-48 rounded-lg shadow-sm border border-gray-200"
+                />
+              </div>
               <h3 className="mt-3 text-lg font-bold text-gray-800">
-                QR Link Meja {table?.number}
+                QR Code Meja {table?.number}
               </h3>
               <p className="mt-2 break-all rounded-xl bg-gray-50 border border-gray-100 p-3 text-sm font-mono text-gray-700">
                 {url}
               </p>
-              <p className="mt-2 text-xs text-gray-400">
-                Share link ini atau encode ke QR Code menggunakan generator pilihan Anda.
+              <p className="mt-2 text-xs text-gray-500">
+                Gambar QR Code di atas 100% dibuat langsung dari sistem server (Private & Aman).
               </p>
-              <div className="mt-4 flex gap-3">
+              <div className="mt-4 flex flex-col gap-2">
+                <div className="flex gap-2">
+                  <a
+                    href={`${import.meta.env.VITE_BACKEND_URL}/api/qr/${qrTableId}?size=800`}
+                    target="_blank"
+                    download={`meja-${table?.number}.png`}
+                    className="flex-1 rounded-xl bg-emerald-500 py-2.5 text-sm font-bold text-white hover:bg-emerald-600 transition-colors cursor-pointer block leading-normal"
+                  >
+                    Simpan QR
+                  </a>
+                  <button
+                    onClick={() => copyQrUrl(table)}
+                    className="flex-1 rounded-xl bg-amber-500 py-2.5 text-sm font-bold text-white hover:bg-amber-600 active:scale-95 transition-all"
+                  >
+                    Salin URL
+                  </button>
+                </div>
                 <button
                   onClick={() => setQrTableId(null)}
-                  className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                  className="w-full rounded-xl border border-gray-200 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 mt-1"
                 >
                   Tutup
-                </button>
-                <button
-                  onClick={() => copyQrUrl(table)}
-                  className="flex-1 rounded-xl bg-amber-500 py-2.5 text-sm font-bold text-white hover:bg-amber-600 active:scale-95 transition-all"
-                >
-                  📋 Salin URL
                 </button>
               </div>
             </div>
