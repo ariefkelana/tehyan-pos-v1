@@ -19,6 +19,7 @@ const prisma = new PrismaClient({
 
 // ─── Express App ────────────────────────────────────────────────────────────
 const app = express();
+app.set('trust proxy', 1);
 const httpServer = http.createServer(app);
 
 // ─── CORS Configuration ─────────────────────────────────────────────────────
