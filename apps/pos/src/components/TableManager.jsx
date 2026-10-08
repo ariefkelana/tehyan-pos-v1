@@ -163,7 +163,7 @@ export default function TableManager() {
             >
               <div className="flex justify-center mb-4">
                 <img 
-                  src={`${(import.meta.env.VITE_BACKEND_URL || "http://localhost:5000/api").replace(/\/api$/, "")}/api/qr/${qrTableId}?size=400`} 
+                  src={`${api.defaults.baseURL.replace(/\/api$/, "")}/api/qr/${qrTableId}?size=400`} 
                   alt={`QR Code Meja ${table?.number}`}
                   className="w-48 h-48 rounded-lg shadow-sm border border-gray-200"
                 />
@@ -180,7 +180,7 @@ export default function TableManager() {
               <div className="mt-4 flex flex-col gap-2">
                 <div className="flex gap-2">
                   <a
-                    href={`${(import.meta.env.VITE_BACKEND_URL || "http://localhost:5000/api").replace(/\/api$/, "")}/api/qr/${qrTableId}?size=800`}
+                    href={`${api.defaults.baseURL.replace(/\/api$/, "")}/api/qr/${qrTableId}?size=800`}
                     target="_blank"
                     download={`meja-${table?.number}.png`}
                     className="flex-1 rounded-xl bg-emerald-500 py-2.5 text-sm font-bold text-white hover:bg-emerald-600 transition-colors cursor-pointer block leading-normal"
