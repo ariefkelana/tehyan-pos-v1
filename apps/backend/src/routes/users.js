@@ -53,7 +53,11 @@ router.post('/', requireAuth, requireAdmin, [
     res.status(201).json({ success: true, data: { id: user.id, name, email, role } });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: 'Gagal membuat akun' });
+    if (error.code === 'auth/email-already-exists') {
+      res.status(400).json({ success: false, message: 'Email sudah terdaftar di sistem' });
+    } else {
+      res.status(500).json({ success: false, message: 'Gagal membuat akun' });
+    }
   }
 });
 

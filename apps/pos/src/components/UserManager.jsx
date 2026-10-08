@@ -6,6 +6,7 @@ export default function UserManager() {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   
   const [formData, setFormData] = useState({
@@ -175,20 +176,31 @@ export default function UserManager() {
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Password {editingUser && <span className="text-gray-400 font-normal">(Kosongkan jika tidak ingin diubah)</span>}
                 </label>
-                <input
-                  type="password"
-                  required={!editingUser}
-                  minLength={6}
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 p-2.5 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    required={!editingUser}
+                    minLength={6}
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="w-full rounded-lg border border-gray-300 p-2.5 pr-10 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  >
+                    {showPassword ? (
+                      <EyeSlashIcon className="h-5 w-5" />
+                    ) : (
+                      <EyeIcon className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               {/* Role always editable */}
-                (
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Peran (Role)</label>
+                <div><label className="mb-1 block text-sm font-medium text-gray-700">Peran (Role)</label>
                   <select
                     value={formData.role}
                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
@@ -196,9 +208,7 @@ export default function UserManager() {
                   >
                     <option value="CASHIER">CASHIER (Kasir)</option>
                     <option value="ADMIN">ADMIN (Pemilik)</option>
-                  </select>
-                </div>
-              )
+                  </select></div>
                               <div className="mt-4 flex justify-end gap-3">
                 <button
                   type="button"
