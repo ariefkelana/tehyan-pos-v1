@@ -1,18 +1,14 @@
 const admin = require('firebase-admin');
 
-// In production (Vercel), we use Environment Variables.
-// Locally, we can fallback to the serviceAccountKey.json file if it exists.
 let serviceAccount;
 try {
   if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
-    // Decode base64 to JSON
     const decoded = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf-8');
     serviceAccount = JSON.parse(decoded);
   } else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-    // If provided as a JSON string in Vercel Env Vars (often breaks)
+    // We try to use the raw JSON, but often Vercel strips newlines in the private_key!
     serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
   } else {
-    // Local fallback
     serviceAccount = require('../../serviceAccountKey.json');
   }
 } catch (error) {
@@ -20,9 +16,18 @@ try {
 }
 
 if (serviceAccount) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
+  try {
+    // If the user manually stripped newlines to fit into Vercel UI, the key is permanently broken.
+    if (serviceAccount.private_key && !serviceAccount.private_key.includes('\n')) {
+      console.error('FIREBASE FATAL: private_key is missing newline characters! Please use FIREBASE_SERVICE_ACCOUNT_BASE64 instead.');
+    }
+    
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+  } catch (err) {
+    console.error('FIREBASE APP INIT FATAL ERROR:', err.message);
+  }
 }
 
 module.exports = admin;
