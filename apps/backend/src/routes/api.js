@@ -449,8 +449,7 @@ router.post(
           }
         }
 
-        return newOrder;
-      });
+        return newOrder; }, { maxWait: 10000, timeout: 20000 });
 
       // ── Emit real-time event to cashier room ──────────────────────────────
       req.io.to('cashier-room').emit('new-order', {
@@ -655,8 +654,7 @@ router.post(
           data: { status: 'PAID' },
         });
 
-        return newPayment;
-      });
+        return newPayment; }, { maxWait: 10000, timeout: 20000 });
 
       req.io.to('cashier-room').emit('payment:completed', {
         orderId: parsedOrderId,
