@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import clsx from 'clsx';
@@ -32,7 +32,7 @@ export default function CheckoutModal({
   
     const overlayRef = useRef(null);
 
-  const cartItems = Object.values(cart);
+  const cartItems = Object.entries(cart).map(([key, value]) => ({ cartKey: key, ...value }));
 
   
 
