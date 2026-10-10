@@ -129,6 +129,10 @@ export default function ProductModifierModal({ product, onClose, onAddToCart }) 
                   return (
                     <label
                       key={optIdx}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleToggle(mod, opt);
+                      }}
                       className={clsx(
                         'flex cursor-pointer items-center justify-between rounded-2xl border p-4 transition-all',
                         isSelected ? 'border-zinc-900 bg-zinc-900 text-white shadow-md' : 'border-gray-200 hover:border-gray-300 bg-white text-gray-700'
