@@ -64,12 +64,12 @@ router.post('/', requireAuth, requireAdmin, [
 // PATCH /api/users/:id
 router.patch('/:id', requireAuth, requireAdmin, [
   body('name').optional().trim().notEmpty(),
-  body('password').optional().isLength({ min: 6 })
+  body('password').optional().isLength({ min: 6 }), body('role').optional().isIn(['ADMIN', 'CASHIER'])
 ], async (req, res) => {
   if (handleValidation(req, res)) return;
 
   try {
-    const { name, password } = req.body;
+    const { name, password, role } = req.body;
     
     // Update Firebase user if name or password is provided
     const updateData = {};
@@ -82,7 +82,7 @@ router.patch('/:id', requireAuth, requireAdmin, [
 
     // Update Prisma user
     const data = {};
-    if (name) data.name = name;
+    if (name) data.name = name; if (role) data.role = role;
 
     let user;
     if (Object.keys(data).length > 0) {

@@ -51,7 +51,7 @@ export default function UserManager() {
     e.preventDefault();
     try {
       if (editingUser) {
-        const payload = { name: formData.name };
+        const payload = { name: formData.name, role: formData.role };
         if (formData.password) payload.password = formData.password;
         await api.patch('/users/' + editingUser.id, payload);
         toast.success('Akun berhasil diubah');
