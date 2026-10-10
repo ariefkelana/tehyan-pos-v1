@@ -101,21 +101,34 @@ export default function App() {
       {/* ── Main Content ─────────────────────────────────────────── */}
       <main className="flex flex-1 flex-col overflow-hidden pb-20 md:pb-0 relative">
         {/* Topbar */}
-        <header className="flex items-center justify-between border-b bg-white px-6 py-4 shadow-sm">
-          <h1 className="text-lg font-semibold text-gray-800">
+        <header className="flex items-center justify-between border-b bg-white px-4 md:px-6 py-3 md:py-4 shadow-sm z-10 relative">
+          <div className="md:hidden flex items-center mr-3 bg-wall border-2 border-mural-red p-0.5">
+            <div className="border border-mural-blue px-2 py-0.5 bg-wall flex justify-center items-center">
+              <span className="font-cursive text-lg font-bold text-mural-blue" style={{lineHeight: 1}}>Teh Yan</span>
+            </div>
+          </div>
+
+          <h1 className="hidden md:block text-lg font-semibold text-gray-800">
             {NAV_ITEMS.find((n) => n.id === activeTab)?.label ?? 'Dashboard'}
           </h1>
-          <div className="flex items-center gap-3 text-sm text-gray-500">
-            <span className="h-2 w-2 rounded-full bg-green-400" title="Server Connected" />
-            <button onClick={logout} className="md:hidden ml-1 flex items-center justify-center rounded-lg bg-gray-100 p-2 text-gray-600 hover:bg-red-100 hover:text-red-600 transition-colors" title="Keluar"><span className="text-sm">🚪</span></button>
-            <span>
-              {new Date().toLocaleDateString('id-ID', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
+
+          <div className="flex items-center gap-2 md:gap-3 text-sm text-gray-500 ml-auto">
+            <span className="hidden md:inline">
+              {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </span>
+            <span className="h-2 w-2 flex-shrink-0 rounded-full bg-green-400" title="Server Connected" />
+            
+            <div className="md:hidden flex items-center gap-2 ml-1">
+              <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-amber-500 text-xs font-bold text-gray-800 shadow-sm">
+                {user?.name?.charAt(0)?.toUpperCase() ?? '?'}
+              </div>
+              <button 
+                onClick={logout} 
+                className="flex items-center gap-1 rounded-md bg-red-50 border border-red-100 px-2.5 py-1.5 text-red-600 hover:bg-red-100 transition-colors active:scale-95"
+              >
+                <span className="text-[11px] font-bold uppercase tracking-wider">Keluar</span>
+              </button>
+            </div>
           </div>
         </header>
 
