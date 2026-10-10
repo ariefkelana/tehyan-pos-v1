@@ -7,6 +7,7 @@
  *   <PrintReceipt order={order} payment={payment} onClose={() => setPrintData(null)} />
  */
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 const formatRupiah = (v) =>
   new Intl.NumberFormat('id-ID', {
@@ -46,13 +47,15 @@ export default function PrintReceipt({ order, payment, onClose }) {
       {/* Print-only styles */}
       <style>{`
         @media print {
-          body * { visibility: hidden; }
-          #receipt-print, #receipt-print * { visibility: visible; }
-          #receipt-print {
-            position: absolute;
-            left: 0;
-            top: 0;
-            display: block !important;
+          #root { display: none !important; }
+          #receipt-print { 
+            display: block !important; 
+            position: absolute; 
+            left: 0; 
+            top: 0; 
+            width: 100%;
+            margin: 0;
+            padding: 0;
           }
           @page { margin: 0; size: 80mm auto; }
         }
@@ -61,8 +64,32 @@ export default function PrintReceipt({ order, payment, onClose }) {
         }
       `}</style>
 
-      {/* Receipt content (hidden on screen, shown on print) */}
-      <div id="receipt-print" ref={printRef} style={{ fontFamily: 'monospace', fontSize: '12px', width: '72mm', padding: '4mm' }}>
+      {/* On-screen overlay — dismiss after printing */}
+      <div
+        className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm print:hidden"
+        onClick={onClose}
+      >
+        <div
+          className="rounded-2xl bg-white p-6 shadow-2xl text-center max-w-xs w-full"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span className="text-4xl">🖨️</span>
+          <p className="mt-2 font-semibold text-gray-800">Mencetak Struk...</p>
+          <p className="text-sm text-gray-500 mt-1">
+            Dialog cetak akan muncul secara otomatis.
+          </p>
+          <button
+            onClick={onClose}
+            className="mt-4 w-full rounded-xl bg-amber-500 py-2.5 text-sm font-bold text-white hover:bg-amber-600 active:scale-95 transition-all"
+          >
+            Selesai
+          </button>
+        </div>
+      </div>
+
+      {/* Receipt content attached to document.body so it isn't trapped by any layout constraints */}
+      {createPortal(
+        <div id="receipt-print" ref={printRef} style={{ fontFamily: 'monospace', fontSize: '12px', width: '72mm', padding: '4mm' }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '8px' }}>
           <p style={{ fontSize: '16px', fontWeight: 'bold' }}>🍵 KEDAI TEHYAN</p>
@@ -132,30 +159,9 @@ export default function PrintReceipt({ order, payment, onClose }) {
         <p style={{ textAlign: 'center', fontSize: '10px', color: '#666' }}>
           Simpan struk ini sebagai bukti pembayaran.
         </p>
-      </div>
-
-      {/* On-screen overlay — dismiss after printing */}
-      <div
-        className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm print:hidden"
-        onClick={onClose}
-      >
-        <div
-          className="rounded-2xl bg-white p-6 shadow-2xl text-center max-w-xs w-full"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <span className="text-4xl">🖨️</span>
-          <p className="mt-2 font-semibold text-gray-800">Mencetak Struk…</p>
-          <p className="text-sm text-gray-500 mt-1">
-            Dialog cetak akan muncul secara otomatis.
-          </p>
-          <button
-            onClick={onClose}
-            className="mt-4 w-full rounded-xl bg-amber-500 py-2.5 text-sm font-bold text-white hover:bg-amber-600 active:scale-95 transition-all"
-          >
-            Selesai
-          </button>
-        </div>
-      </div>
+      </div>,
+      document.body
+    )}
     </>
   );
 }
