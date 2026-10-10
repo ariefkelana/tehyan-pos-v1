@@ -191,14 +191,14 @@ export default function MenuManager() {
       )}
 
       {/* Stats bar */}
-      <div className="flex gap-3 flex-wrap">
+      <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1">
         {[
           { label: 'Total Produk', value: products.length, color: 'bg-blue-50 text-blue-700 border-blue-100' },
           { label: 'Tersedia', value: products.filter(p => p.isAvailable).length, color: 'bg-green-50 text-green-700 border-green-100' },
           { label: 'Nonaktif', value: products.filter(p => !p.isAvailable).length, color: 'bg-red-50 text-red-700 border-red-100' },
           { label: 'Kategori', value: categories.length, color: 'bg-purple-50 text-purple-700 border-purple-100' },
         ].map((stat) => (
-          <div key={stat.label} className={`rounded-xl border px-4 py-2 text-sm ${stat.color}`}>
+          <div key={stat.label} className={`flex-shrink-0 rounded-xl border px-4 py-2 text-sm ${stat.color}`}>
             <span className="font-bold text-lg">{stat.value}</span>
             <span className="ml-2 opacity-70">{stat.label}</span>
           </div>
