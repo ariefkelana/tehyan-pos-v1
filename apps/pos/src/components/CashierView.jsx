@@ -196,7 +196,7 @@ export default function CashierView() {
       </section>
 
       {/* ── Detail Panel ─────────────────────────────────────────────────── */}
-      <section className="flex flex-1 flex-col rounded-xl bg-white shadow-sm">
+      <section className={`flex-1 flex-col rounded-3xl md:rounded-[2rem] bg-white border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] overflow-hidden ${selectedOrder ? "flex" : "hidden md:flex"}`}>
         {selectedOrder ? (
           <OrderDetail
             onClose={() => setSelectedOrder(null)}
