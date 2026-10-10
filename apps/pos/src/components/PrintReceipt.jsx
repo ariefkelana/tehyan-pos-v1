@@ -46,11 +46,19 @@ export default function PrintReceipt({ order, payment, onClose }) {
       {/* Print-only styles */}
       <style>{`
         @media print {
-          body > * { display: none !important; }
-          #receipt-print { display: block !important; }
+          body * { visibility: hidden; }
+          #receipt-print, #receipt-print * { visibility: visible; }
+          #receipt-print {
+            position: absolute;
+            left: 0;
+            top: 0;
+            display: block !important;
+          }
           @page { margin: 0; size: 80mm auto; }
         }
-        #receipt-print { display: none; }
+        @media screen {
+          #receipt-print { display: none; }
+        }
       `}</style>
 
       {/* Receipt content (hidden on screen, shown on print) */}
