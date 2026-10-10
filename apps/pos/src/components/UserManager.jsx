@@ -79,7 +79,7 @@ export default function UserManager() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Manajemen Akun</h1>
           <p className="text-sm text-gray-500">Kelola akun kasir dan admin</p>
@@ -92,8 +92,8 @@ export default function UserManager() {
         </button>
       </div>
 
-      <div className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-100 overflow-hidden">
-        <table className="w-full text-left text-sm text-gray-600">
+      <div className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-100 overflow-x-auto no-scrollbar">
+        <table className="w-full text-left text-sm text-gray-600 min-w-[500px]">
           <thead className="bg-gray-50 uppercase text-gray-400">
             <tr>
               <th className="px-6 py-4 font-medium">Nama</th>
