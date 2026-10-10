@@ -38,7 +38,7 @@ export default function App() {
   if (!isAuthenticated) return <LoginPage />;
 
   return (
-    <div className="flex h-screen overflow-hidden relative bg-transparent z-0">
+    <div className="flex h-dvh overflow-hidden relative bg-transparent z-0">
       <BackgroundMural opacity="opacity-15" />
       {/* ── Sidebar ─────────────────────────────────────────────── */}
       <aside className="hidden md:flex w-56 flex-col bg-wall-texture border-r border-gray-200 shadow-xl z-20">
@@ -142,7 +142,7 @@ export default function App() {
         </div>
       </main>
       {/* Bottom Navigation for Mobile */}
-      <nav className="md:hidden fixed bottom-0 w-full bg-wall-texture border-t border-gray-200 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-50">
+      <nav className="md:hidden absolute bottom-0 w-full bg-wall-texture border-t border-gray-200 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-50 pb-[env(safe-area-inset-bottom)]">
         <ul className="flex justify-around items-center p-2">
           {NAV_ITEMS.map((item) => {
             if (user?.role === 'CASHIER' && !['cashier', 'tables', 'reports'].includes(item.id)) return null;
