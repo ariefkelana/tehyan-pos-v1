@@ -337,11 +337,12 @@ router.post(
     body('items.*.notes').optional().trim(),
     body('notes').optional().trim(),
     body('customerWa').optional().trim(),
+    body('customerName').optional().trim(),
   ],
   async (req, res) => {
     if (handleValidationErrors(req, res)) return;
 
-    const { tableId, items, notes, customerWa } = req.body;
+    const { tableId, items, notes, customerWa, customerName } = req.body;
 
     try {
       // Verify table exists
@@ -422,6 +423,7 @@ router.post(
             totalAmount,
             notes: notes || null,
             customerWa: customerWa || null,
+            customerName: customerName || null,
             items: {
               create: orderItems,
             },

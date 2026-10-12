@@ -253,7 +253,7 @@ function OrderCard({ order, isSelected, onClick }) {
         <div className="flex items-start justify-between gap-2">
           <div>
             <p className="text-sm font-semibold text-gray-800">
-              Meja {order.table?.number ?? '—'}
+              Meja {order.table?.number ?? '—'} {order.customerName ? `• ${order.customerName}` : ''}
             </p>
             <p className="text-xs text-gray-500">{order.orderNumber}</p>
           </div>
@@ -290,7 +290,7 @@ function OrderDetail({ order, onUpdateStatus, updatingId, onOpenPayment, onClose
           </button>
           <div>
           <h2 className="font-semibold text-gray-800">{order.orderNumber}</h2>
-          <p className="text-sm text-gray-500">Meja {order.table?.number ?? '—'}</p>
+          <p className="text-sm text-gray-500">Meja {order.table?.number ?? '—'} {order.customerName ? `• a.n. ${order.customerName}` : ''}</p>
         </div>
         </div>
         <span

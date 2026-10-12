@@ -22,6 +22,7 @@ export default function CheckoutModal({
   onAddItem,
 }) {
   const [notes, setNotes] = useState('');
+  const [customerName, setCustomerName] = useState('');
   const [waNumber, setWaNumber] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderStatus, setOrderStatus] = useState(null); 
@@ -66,7 +67,12 @@ export default function CheckoutModal({
 
   const submitOrder = async (method) => {
     if (cartItems.length === 0) return;
-    if (!waNumber) {
+    if (!customerName.trim()) {
+      setOrderStatus('error');
+      setErrorMsg('Nama pemesan wajib diisi');
+      return;
+    }
+    if (!waNumber.trim()) {
       setOrderStatus('error');
       setErrorMsg('Nomor WhatsApp wajib diisi');
       return;
@@ -82,6 +88,7 @@ export default function CheckoutModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tableId: table.id,
+          customerName: customerName.trim(),
           customerWa: waNumber,
           notes,
           items: cartItems.map(item => ({
@@ -233,6 +240,11 @@ export default function CheckoutModal({
           <div className="pt-2">
             <label className="mb-2 block text-xs font-bold text-gray-500 uppercase tracking-wider">Catatan Khusus (Opsional)</label>
             <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} maxLength={200} placeholder="Contoh: Tanpa bawang, es dipisah, dll." className="w-full resize-none rounded-2xl bg-gray-50 px-4 py-3 text-sm placeholder:text-gray-400 outline-none focus:bg-white focus:ring-2 focus:ring-zinc-900 transition-all border border-transparent focus:border-transparent" />
+          </div>
+
+          <div className="pt-2">
+            <label className="mb-2 block text-xs font-bold text-gray-500 uppercase tracking-wider">Nama Pemesan <span className="text-red-500">*</span></label>
+            <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Contoh: Kak Dimas / Kak Sarah" required className="w-full rounded-2xl bg-gray-50 px-4 py-3 text-sm placeholder:text-gray-400 outline-none focus:bg-white focus:ring-2 focus:ring-zinc-900 transition-all border border-transparent focus:border-transparent" />
           </div>
 
           <div className="pt-2 pb-4">

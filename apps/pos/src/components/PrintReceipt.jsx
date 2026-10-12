@@ -102,6 +102,7 @@ export default function PrintReceipt({ order, payment, onClose }) {
         <div style={{ marginBottom: '8px' }}>
           <p>No. Pesanan : {order.orderNumber}</p>
           <p>Meja       : {order.table?.number ?? '—'}</p>
+          {order.customerName && <p>Pelanggan  : {order.customerName}</p>}
           <p>Kasir      : POS System</p>
           <p>Waktu      : {formatDateTime(order.createdAt)}</p>
         </div>
