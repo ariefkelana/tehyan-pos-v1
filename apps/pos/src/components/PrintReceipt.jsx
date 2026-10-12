@@ -1,10 +1,7 @@
 // File: apps/pos/src/components/PrintReceipt.jsx
 /**
- * PrintReceipt — generates a thermal-style receipt and triggers window.print().
- * Call openPrint(order, payment) to mount and auto-print.
- *
- * Usage:
- *   <PrintReceipt order={order} payment={payment} onClose={() => setPrintData(null)} />
+ * PrintReceipt — Generates a professional 80mm/58mm thermal receipt layout
+ * and triggers window.print() via React Portal attached to document.body.
  */
 import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
@@ -19,7 +16,7 @@ const formatRupiah = (v) =>
 const formatDateTime = (dateStr) =>
   new Date(dateStr).toLocaleString('id-ID', {
     day: '2-digit',
-    month: 'long',
+    month: 'short',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
@@ -31,10 +28,10 @@ export default function PrintReceipt({ order, payment, onClose }) {
   const printRef = useRef(null);
 
   useEffect(() => {
-    // Auto-trigger print after a brief paint delay
+    // Auto-trigger print after brief paint delay
     const timer = setTimeout(() => {
       window.print();
-    }, 300);
+    }, 350);
     return () => clearTimeout(timer);
   }, []);
 
@@ -44,125 +41,218 @@ export default function PrintReceipt({ order, payment, onClose }) {
 
   return (
     <>
-      {/* Print-only styles */}
+      {/* Optimized Thermal Print Styles */}
       <style>{`
         @media print {
+          /* Hide the main react app root completely */
           #root { display: none !important; }
-          #receipt-print { 
-            display: block !important; 
-            position: absolute; 
-            left: 0; 
-            top: 0; 
-            width: 100%;
-            margin: 0;
-            padding: 0;
+          
+          @page {
+            size: 80mm auto;
+            margin: 0mm;
           }
-          @page { margin: 0; size: 80mm auto; }
+          
+          html, body {
+            width: 80mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+
+          #receipt-print {
+            display: block !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 72mm !important;
+            margin: 0 auto !important;
+            padding: 4mm 3mm !important;
+            background: #ffffff !important;
+            color: #000000 !important;
+            box-sizing: border-box !important;
+          }
         }
         @media screen {
           #receipt-print { display: none; }
         }
       `}</style>
 
-      {/* On-screen overlay — dismiss after printing */}
+      {/* On-Screen Modal Overlay (Dismissable) */}
       <div
         className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm print:hidden"
         onClick={onClose}
       >
         <div
-          className="rounded-2xl bg-white p-6 shadow-2xl text-center max-w-xs w-full"
+          className="rounded-3xl bg-white p-6 shadow-2xl text-center max-w-xs w-full border border-gray-100"
           onClick={(e) => e.stopPropagation()}
         >
-          <span className="text-4xl">🖨️</span>
-          <p className="mt-2 font-semibold text-gray-800">Mencetak Struk...</p>
-          <p className="text-sm text-gray-500 mt-1">
-            Dialog cetak akan muncul secara otomatis.
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-500 mb-3">
+            <span className="text-3xl">🖨️</span>
+          </div>
+          <h3 className="font-bold text-gray-900 text-lg">Mencetak Struk...</h3>
+          <p className="text-xs text-gray-500 mt-1">
+            Dialog cetak printer akan muncul otomatis. Silakan pilih printer kasir Anda.
           </p>
-          <button
-            onClick={onClose}
-            className="mt-4 w-full rounded-xl bg-amber-500 py-2.5 text-sm font-bold text-white hover:bg-amber-600 active:scale-95 transition-all"
-          >
-            Selesai
-          </button>
+          <div className="mt-5 flex gap-2">
+            <button
+              onClick={() => window.print()}
+              className="flex-1 rounded-xl bg-gray-100 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-200 active:scale-95 transition-all"
+            >
+              Cetak Ulang
+            </button>
+            <button
+              onClick={onClose}
+              className="flex-1 rounded-xl bg-amber-500 py-2.5 text-xs font-bold text-white hover:bg-amber-600 shadow-md shadow-amber-500/20 active:scale-95 transition-all"
+            >
+              Selesai
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Receipt content attached to document.body so it isn't trapped by any layout constraints */}
+      {/* Actual Receipt Layout (Mounted to body for print reliability) */}
       {createPortal(
-        <div id="receipt-print" ref={printRef} style={{ fontFamily: 'monospace', fontSize: '12px', width: '72mm', padding: '4mm' }}>
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-          <p style={{ fontSize: '16px', fontWeight: 'bold' }}>🍵 KEDAI TEHYAN</p>
-          <p>Jl. Contoh No. 1, Kota Anda</p>
-          <p>Telp: 0812-3456-7890</p>
-          <p style={{ borderTop: '1px dashed #000', marginTop: '6px', paddingTop: '6px' }} />
-        </div>
+        <div
+          id="receipt-print"
+          ref={printRef}
+          style={{
+            fontFamily: "'Courier New', Courier, monospace",
+            fontSize: '11px',
+            lineHeight: '1.35',
+            color: '#000000',
+            width: '72mm',
+            padding: '4mm 2mm',
+            backgroundColor: '#ffffff',
+          }}
+        >
+          {/* Header Kedai TehYan */}
+          <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+            <p style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 2px 0', letterSpacing: '0.5px' }}>
+              KEDAI TEHYAN
+            </p>
+            <p style={{ fontSize: '10px', margin: '0 0 2px 0', color: '#333' }}>
+              Spesialis Teh Tarik & Minuman Segar
+            </p>
+            <p style={{ fontSize: '9px', margin: '0 0 4px 0', color: '#555' }}>
+              Jl. Margonda Raya, Depok
+            </p>
+            <p style={{ borderTop: '1px dashed #000', margin: '6px 0 0 0' }} />
+          </div>
 
-        {/* Order info */}
-        <div style={{ marginBottom: '8px' }}>
-          <p>No. Pesanan : {order.orderNumber}</p>
-          <p>Meja       : {order.table?.number ?? '—'}</p>
-          {order.customerName && <p>Pelanggan  : {order.customerName}</p>}
-          <p>Kasir      : POS System</p>
-          <p>Waktu      : {formatDateTime(order.createdAt)}</p>
-        </div>
+          {/* Metadata Transaksi */}
+          <div style={{ fontSize: '11px', marginBottom: '6px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+              <span>No. Order :</span>
+              <span style={{ fontWeight: 'bold' }}>{order.orderNumber}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+              <span>Meja      :</span>
+              <span style={{ fontWeight: 'bold' }}>Meja {order.table?.number ?? '—'}</span>
+            </div>
+            {order.customerName && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                <span>Pemesan   :</span>
+                <span style={{ fontWeight: 'bold' }}>{order.customerName}</span>
+              </div>
+            )}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+              <span>Waktu     :</span>
+              <span>{formatDateTime(order.createdAt)}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>Kasir     :</span>
+              <span>POS System</span>
+            </div>
+          </div>
 
-        <p style={{ borderTop: '1px dashed #000', margin: '6px 0' }} />
+          <p style={{ borderTop: '1px dashed #000', margin: '6px 0' }} />
 
-        {/* Items */}
-        <table style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: 'left' }}>Item</th>
-              <th style={{ textAlign: 'center', width: '30px' }}>Qty</th>
-              <th style={{ textAlign: 'right' }}>Harga</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(order.items ?? []).map((item, idx) => (
-              <tr key={idx}>
-                <td style={{ paddingRight: '4px' }}>{item.product?.name ?? '—'}</td>
-                <td style={{ textAlign: 'center' }}>{item.quantity}</td>
-                <td style={{ textAlign: 'right' }}>{formatRupiah(item.subtotal)}</td>
+          {/* Rincian Item Pesanan */}
+          <table style={{ width: '100%', fontSize: '11px', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px dashed #000' }}>
+                <th style={{ textAlign: 'left', paddingBottom: '3px', fontWeight: 'bold' }}>Item</th>
+                <th style={{ textAlign: 'center', width: '28px', paddingBottom: '3px', fontWeight: 'bold' }}>Qty</th>
+                <th style={{ textAlign: 'right', paddingBottom: '3px', fontWeight: 'bold' }}>Total</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {(order.items ?? []).map((item, idx) => {
+                let modifierText = '';
+                if (item.modifiers) {
+                  try {
+                    const parsed = JSON.parse(item.modifiers);
+                    modifierText = Object.values(parsed)
+                      .map((m) => m?.name || m)
+                      .join(', ');
+                  } catch {
+                    modifierText = '';
+                  }
+                }
 
-        <p style={{ borderTop: '1px dashed #000', margin: '6px 0' }} />
+                return (
+                  <tr key={idx} style={{ verticalAlign: 'top' }}>
+                    <td style={{ padding: '4px 0' }}>
+                      <div style={{ fontWeight: 'bold' }}>{item.product?.name ?? '—'}</div>
+                      {modifierText && (
+                        <div style={{ fontSize: '9.5px', color: '#444' }}>
+                          [{modifierText}]
+                        </div>
+                      )}
+                      {item.notes && (
+                        <div style={{ fontSize: '9px', fontStyle: 'italic', color: '#666' }}>
+                          *{item.notes}
+                        </div>
+                      )}
+                    </td>
+                    <td style={{ textAlign: 'center', padding: '4px 0' }}>{item.quantity}</td>
+                    <td style={{ textAlign: 'right', padding: '4px 0' }}>{formatRupiah(item.subtotal)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
 
-        {/* Totals */}
-        <table style={{ width: '100%', fontSize: '12px' }}>
-          <tbody>
-            <tr>
-              <td><strong>TOTAL</strong></td>
-              <td style={{ textAlign: 'right' }}><strong>{formatRupiah(subtotal)}</strong></td>
-            </tr>
-            <tr>
-              <td>Metode Bayar</td>
-              <td style={{ textAlign: 'right' }}>{METHOD_LABELS[payment?.method] ?? '—'}</td>
-            </tr>
-            <tr>
-              <td>Dibayar</td>
-              <td style={{ textAlign: 'right' }}>{formatRupiah(paidAmount)}</td>
-            </tr>
-            <tr>
-              <td>Kembalian</td>
-              <td style={{ textAlign: 'right' }}>{formatRupiah(change)}</td>
-            </tr>
-          </tbody>
-        </table>
+          <p style={{ borderTop: '1px dashed #000', margin: '6px 0' }} />
 
-        {/* Footer */}
-        <p style={{ borderTop: '1px dashed #000', margin: '8px 0', paddingTop: '8px', textAlign: 'center' }}>
-          Terima kasih atas kunjungan Anda!
-        </p>
-        <p style={{ textAlign: 'center', fontSize: '10px', color: '#666' }}>
-          Simpan struk ini sebagai bukti pembayaran.
-        </p>
-      </div>,
-      document.body
-    )}
+          {/* Total & Informasi Pembayaran */}
+          <div style={{ fontSize: '11px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>
+              <span>TOTAL</span>
+              <span>{formatRupiah(subtotal)}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+              <span>Metode Bayar</span>
+              <span>{METHOD_LABELS[payment?.method] ?? 'Tunai'}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+              <span>Dibayar</span>
+              <span>{formatRupiah(paidAmount)}</span>
+            </div>
+            {payment?.method === 'CASH' && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
+                <span>Kembalian</span>
+                <span>{formatRupiah(change)}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Catatan / Footer Struk */}
+          <p style={{ borderTop: '1px dashed #000', margin: '8px 0 6px 0' }} />
+          <div style={{ textAlign: 'center', fontSize: '10px', color: '#222' }}>
+            <p style={{ margin: '0 0 2px 0', fontWeight: 'bold' }}>Terima kasih atas kunjungan Anda! 🙏</p>
+            <p style={{ margin: '0 0 4px 0', fontSize: '9px', color: '#555' }}>
+              Simpan struk ini sebagai bukti pembayaran.
+            </p>
+            <p style={{ margin: '0', fontSize: '8.5px', color: '#777' }}>
+              Kedai TehYan POS • Cloud System
+            </p>
+          </div>
+        </div>,
+        document.body
+      )}
     </>
   );
 }
