@@ -7,6 +7,7 @@ import TableManager from './components/TableManager.jsx';
 import ReportsDashboard from './components/ReportsDashboard.jsx';
 import UserManager from './components/UserManager.jsx';
 import ReceiptSettings from './components/ReceiptSettings.jsx';
+import WhatsAppSettings from './components/WhatsAppSettings.jsx';
 import LoginPage from './components/LoginPage.jsx';
 import BackgroundMural from './components/BackgroundMural.jsx';
 import { useAuth } from './hooks/useAuth.jsx';
@@ -18,6 +19,7 @@ const NAV_ITEMS = [
   { id: 'reports', label: 'Laporan', icon: '📊' },
   { id: 'users', label: 'Akun', icon: '👥' },
   { id: 'receipt', label: 'Struk', icon: '🖨️' },
+  { id: 'whatsapp', label: 'WhatsApp', icon: '💬' },
 ];
 
 export default function App() {
@@ -142,6 +144,7 @@ export default function App() {
           {activeTab === 'reports' && <ReportsDashboard />}
           {activeTab === 'users' && <UserManager />}
           {activeTab === 'receipt' && <ReceiptSettings />}
+          {activeTab === 'whatsapp' && <WhatsAppSettings />}
         </div>
       </main>
       {/* Bottom Navigation for Mobile */}

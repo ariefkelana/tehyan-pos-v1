@@ -5,7 +5,7 @@
 const express = require('express');
 const { body, param, query, validationResult } = require('express-validator');
 const { v4: uuidv4 } = require('uuid');
-const { sendWhatsApp } = require('../utils/whatsapp');
+const { sendWhatsApp, buildOrderReceiptMessage, buildOrderReadyMessage } = require('../utils/whatsapp');
 
 const router = express.Router();
 const { requireAuth, requireAdmin } = require('../middleware/auth');
@@ -581,7 +581,7 @@ router.patch(
 
       // WA Notification if Ready
       if (status === 'READY' && order.customerWa) {
-        const msg = `Halo! 👋\n\nPesanan Anda dari Kedai TehYan (Order #${order.orderNumber}) sudah *SIAP DIAMBIL* di kasir.\n\nTerima kasih!`;
+        const msg = buildOrderReadyMessage(order);
         await sendWhatsApp(order.customerWa, msg);
       }
 
@@ -623,7 +623,7 @@ router.post(
 
       const order = await req.prisma.order.findUnique({
         where: { id: parsedOrderId },
-        include: { payment: true },
+        include: { payment: true, table: true, items: { include: { product: true } } },
       });
 
       if (!order) return res.status(404).json({ success: false, message: 'Order not found.' });
@@ -669,8 +669,7 @@ router.post(
       req.io.to(`table-${order.tableId}`).emit('order:paid', { orderId: parsedOrderId });
 
       if (order.customerWa) {
-        const fmt = (v) => 'Rp' + Number(v).toLocaleString('id-ID');
-        const receipt = `*KEDAI TEHYAN*\nTerima kasih atas pesanan Anda!\n\nNo. Order: ${order.orderNumber}\nTotal: ${fmt(order.totalAmount)}\nDibayar: ${fmt(payment.amount)}\nKembali: ${fmt(payment.change)}\n\nPesanan sedang diproses dan akan kami beritahu jika sudah siap.`;
+        const receipt = buildOrderReceiptMessage(order, payment);
         await sendWhatsApp(order.customerWa, receipt);
       }
 
@@ -697,7 +696,7 @@ router.post('/orders/:id/pay', requireAuth, [
     const orderId = parseInt(req.params.id, 10);
     const { method, amount } = req.body;
     
-    const order = await req.prisma.order.findUnique({ where: { id: orderId } });
+    const order = await req.prisma.order.findUnique({ where: { id: orderId }, include: { table: true, items: { include: { product: true } } } });
     if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
     if (order.status === 'PAID') return res.status(400).json({ success: false, message: 'Order is already paid' });
 
@@ -717,6 +716,11 @@ router.post('/orders/:id/pay', requireAuth, [
 
     req.io.to('cashier-room').emit('order:updated', { id: orderId, status: 'PAID' });
     req.io.to('table-' + order.tableId).emit('order:paid', { id: orderId });
+
+    if (order.customerWa) {
+      const receipt = buildOrderReceiptMessage(order, payment);
+      await sendWhatsApp(order.customerWa, receipt);
+    }
 
     res.json({ success: true, data: payment });
   } catch (error) {

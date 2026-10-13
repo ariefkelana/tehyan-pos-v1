@@ -345,21 +345,34 @@ function OrderDetail({ order, onUpdateStatus, updatingId, onOpenPayment, onClose
           </div>
         )}
 
-        {order.customerWa && (
-          <div className="mt-4 rounded-2xl bg-emerald-50 border border-emerald-100 p-4">
-            <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider mb-2">WhatsApp Pelanggan: {order.customerWa}</p>
-            <div className="flex gap-2">
-              <a
-                href={`https://wa.me/${order.customerWa.startsWith('0') ? '62' + order.customerWa.slice(1) : order.customerWa}?text=${encodeURIComponent(`Halo Kak! 👋\n\nTerima kasih sudah mampir di *Kedai TehYan* 🍵\nIni adalah e-receipt untuk pesanan Kakak (Order #${order.orderNumber}).\n\n💰 *Total Tagihan:* ${formatRupiah(order.totalAmount)}\n📌 *Status Saat Ini:* ${STATUS_LABELS[order.status]}\n\n${order.status === 'READY' ? '✨ *KABAR GEMBIRA!* ✨\nMinuman Kakak sudah siap dinikmati! Yuk, silakan meluncur ke meja kasir sekarang untuk mengambil pesanannya ya! 🏃💨' : 'Mohon ditunggu sebentar ya Kak, pesanan sedang kami proses dengan cinta. Nanti kami kabari lagi kalau sudah siap!'}`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-emerald-500 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-600 active:scale-95 transition-all"
-              >
-                <span>💬</span> {order.status === 'READY' ? 'Kirim Info Ambil Pesanan' : 'Kirim E-Receipt'}
-              </a>
+        {order.customerWa && (() => {
+          const cleanWa = String(order.customerWa).replace(/[^0-9]/g, '');
+          const waTarget = cleanWa.startsWith('0') ? '62' + cleanWa.slice(1) : (cleanWa.startsWith('8') ? '62' + cleanWa : cleanWa);
+          return (
+            <div className="mt-4 rounded-2xl bg-emerald-50 border border-emerald-100 p-4">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
+                  WhatsApp: +{waTarget}
+                </p>
+                <span className="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Auto-Bot Aktif
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <a
+                  href={`https://wa.me/${waTarget}?text=${encodeURIComponent(`Halo Kak! 👋\n\nTerima kasih sudah mampir di *Kedai TehYan* 🍵\nIni adalah e-receipt untuk pesanan Kakak (Order #${order.orderNumber}).\n\n💰 *Total Tagihan:* ${formatRupiah(order.totalAmount)}\n📌 *Status Saat Ini:* ${STATUS_LABELS[order.status]}\n\n${order.status === 'READY' ? '✨ *KABAR GEMBIRA!* ✨\nMinuman Kakak sudah siap dinikmati! Yuk, silakan meluncur ke meja kasir sekarang untuk mengambil pesanannya ya! 🏃💨' : 'Mohon ditunggu sebentar ya Kak, pesanan sedang kami proses dengan cinta. Nanti kami kabari lagi kalau sudah siap!'}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-emerald-500 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-600 active:scale-95 transition-all"
+                >
+                  <span>💬</span> {order.status === 'READY' ? 'Kirim Ulang Info Ambil' : 'Kirim Ulang E-Receipt Manual'}
+                </a>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
+
       </div>
 
       {/* Footer / Total + Action */}
