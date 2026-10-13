@@ -2,9 +2,11 @@
 /**
  * PrintReceipt — Generates a professional 80mm/58mm thermal receipt layout
  * and triggers window.print() via React Portal attached to document.body.
+ * Layout and content are dynamically driven by Admin Receipt Settings.
  */
 import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { getReceiptSettings } from '../lib/receiptSettings.js';
 
 const formatRupiah = (v) =>
   new Intl.NumberFormat('id-ID', {
@@ -24,8 +26,10 @@ const formatDateTime = (dateStr) =>
 
 const METHOD_LABELS = { CASH: 'Tunai', QRIS: 'QRIS', TRANSFER: 'Transfer', CARD: 'Kartu' };
 
-export default function PrintReceipt({ order, payment, onClose }) {
+export default function PrintReceipt({ order, payment, onClose, customSettings }) {
   const printRef = useRef(null);
+  const settings = customSettings || getReceiptSettings();
+  const is58mm = settings.paperSize === '58mm';
 
   useEffect(() => {
     // Auto-trigger print after brief paint delay
@@ -41,19 +45,19 @@ export default function PrintReceipt({ order, payment, onClose }) {
 
   return (
     <>
-      {/* Optimized Thermal Print Styles */}
+      {/* Optimized Thermal Print Styles based on 80mm vs 58mm settings */}
       <style>{`
         @media print {
           /* Hide the main react app root completely */
           #root { display: none !important; }
           
           @page {
-            size: 80mm auto;
+            size: ${is58mm ? '58mm' : '80mm'} auto;
             margin: 0mm;
           }
           
           html, body {
-            width: 80mm !important;
+            width: ${is58mm ? '58mm' : '80mm'} !important;
             margin: 0 !important;
             padding: 0 !important;
             background: #ffffff !important;
@@ -66,9 +70,9 @@ export default function PrintReceipt({ order, payment, onClose }) {
             position: absolute !important;
             left: 0 !important;
             top: 0 !important;
-            width: 72mm !important;
+            width: ${is58mm ? '48mm' : '72mm'} !important;
             margin: 0 auto !important;
-            padding: 4mm 3mm !important;
+            padding: ${is58mm ? '2mm 1mm' : '4mm 2mm'} !important;
             background: #ffffff !important;
             color: #000000 !important;
             box-sizing: border-box !important;
@@ -91,7 +95,7 @@ export default function PrintReceipt({ order, payment, onClose }) {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-500 mb-3">
             <span className="text-3xl">🖨️</span>
           </div>
-          <h3 className="font-bold text-gray-900 text-lg">Mencetak Struk...</h3>
+          <h3 className="font-bold text-gray-900 text-lg">Mencetak Struk ({settings.paperSize})...</h3>
           <p className="text-xs text-gray-500 mt-1">
             Dialog cetak printer akan muncul otomatis. Silakan pilih printer kasir Anda.
           </p>
@@ -119,69 +123,86 @@ export default function PrintReceipt({ order, payment, onClose }) {
           ref={printRef}
           style={{
             fontFamily: "'Courier New', Courier, monospace",
-            fontSize: '11px',
-            lineHeight: '1.35',
+            fontSize: is58mm ? '9.5px' : '11px',
+            lineHeight: is58mm ? '1.25' : '1.35',
             color: '#000000',
-            width: '72mm',
-            padding: '4mm 2mm',
+            width: is58mm ? '48mm' : '72mm',
+            padding: is58mm ? '2mm 1mm' : '4mm 2mm',
             backgroundColor: '#ffffff',
           }}
         >
-          {/* Header Kedai TehYan */}
-          <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-            <p style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 2px 0', letterSpacing: '0.5px' }}>
-              KEDAI TEHYAN
+          {/* Header Toko */}
+          <div style={{ textAlign: 'center', marginBottom: is58mm ? '5px' : '8px' }}>
+            <p style={{ fontSize: is58mm ? '13px' : '15px', fontWeight: 'bold', margin: '0 0 2px 0', letterSpacing: '0.5px' }}>
+              {settings.storeName || 'KEDAI TEHYAN'}
             </p>
-            <p style={{ fontSize: '10px', margin: '0 0 2px 0', color: '#333' }}>
-              Spesialis Teh Tarik & Minuman Segar
-            </p>
-            <p style={{ fontSize: '9px', margin: '0 0 4px 0', color: '#555' }}>
-              Jl. Margonda Raya, Depok
-            </p>
-            <p style={{ borderTop: '1px dashed #000', margin: '6px 0 0 0' }} />
+            {settings.storeSlogan && (
+              <p style={{ fontSize: is58mm ? '8.5px' : '10px', margin: '0 0 2px 0', color: '#333' }}>
+                {settings.storeSlogan}
+              </p>
+            )}
+            {settings.storeAddress && (
+              <p style={{ fontSize: is58mm ? '8px' : '9px', margin: '0 0 2px 0', color: '#555' }}>
+                {settings.storeAddress}
+              </p>
+            )}
+            {settings.showPhone && settings.storePhone && (
+              <p style={{ fontSize: is58mm ? '8px' : '9px', margin: '0 0 4px 0', color: '#555' }}>
+                Telp/WA: {settings.storePhone}
+              </p>
+            )}
+            <p style={{ borderTop: '1px dashed #000', margin: is58mm ? '4px 0 0 0' : '6px 0 0 0' }} />
           </div>
 
           {/* Metadata Transaksi */}
-          <div style={{ fontSize: '11px', marginBottom: '6px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-              <span>No. Order :</span>
-              <span style={{ fontWeight: 'bold' }}>{order.orderNumber}</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-              <span>Meja      :</span>
-              <span style={{ fontWeight: 'bold' }}>Meja {order.table?.number ?? '—'}</span>
-            </div>
-            {order.customerName && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+          <div style={{ fontSize: is58mm ? '9.5px' : '11px', marginBottom: is58mm ? '4px' : '6px' }}>
+            {settings.showOrderNumber && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5px' }}>
+                <span>No. Order :</span>
+                <span style={{ fontWeight: 'bold' }}>{order.orderNumber}</span>
+              </div>
+            )}
+            {settings.showTableNumber && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5px' }}>
+                <span>Meja      :</span>
+                <span style={{ fontWeight: 'bold' }}>Meja {order.table?.number ?? '—'}</span>
+              </div>
+            )}
+            {settings.showCustomerName && order.customerName && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5px' }}>
                 <span>Pemesan   :</span>
                 <span style={{ fontWeight: 'bold' }}>{order.customerName}</span>
               </div>
             )}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-              <span>Waktu     :</span>
-              <span>{formatDateTime(order.createdAt)}</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>Kasir     :</span>
-              <span>POS System</span>
-            </div>
+            {settings.showDateTime && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5px' }}>
+                <span>Waktu     :</span>
+                <span>{formatDateTime(order.createdAt)}</span>
+              </div>
+            )}
+            {settings.showCashierName && (
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Kasir     :</span>
+                <span>POS System</span>
+              </div>
+            )}
           </div>
 
-          <p style={{ borderTop: '1px dashed #000', margin: '6px 0' }} />
+          <p style={{ borderTop: '1px dashed #000', margin: is58mm ? '4px 0' : '6px 0' }} />
 
           {/* Rincian Item Pesanan */}
-          <table style={{ width: '100%', fontSize: '11px', borderCollapse: 'collapse' }}>
+          <table style={{ width: '100%', fontSize: is58mm ? '9.5px' : '11px', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px dashed #000' }}>
                 <th style={{ textAlign: 'left', paddingBottom: '3px', fontWeight: 'bold' }}>Item</th>
-                <th style={{ textAlign: 'center', width: '28px', paddingBottom: '3px', fontWeight: 'bold' }}>Qty</th>
+                <th style={{ textAlign: 'center', width: is58mm ? '22px' : '28px', paddingBottom: '3px', fontWeight: 'bold' }}>Qty</th>
                 <th style={{ textAlign: 'right', paddingBottom: '3px', fontWeight: 'bold' }}>Total</th>
               </tr>
             </thead>
             <tbody>
               {(order.items ?? []).map((item, idx) => {
                 let modifierText = '';
-                if (item.modifiers) {
+                if (settings.showModifiers && item.modifiers) {
                   try {
                     const parsed = JSON.parse(item.modifiers);
                     modifierText = Object.values(parsed)
@@ -194,44 +215,46 @@ export default function PrintReceipt({ order, payment, onClose }) {
 
                 return (
                   <tr key={idx} style={{ verticalAlign: 'top' }}>
-                    <td style={{ padding: '4px 0' }}>
+                    <td style={{ padding: '3px 0' }}>
                       <div style={{ fontWeight: 'bold' }}>{item.product?.name ?? '—'}</div>
                       {modifierText && (
-                        <div style={{ fontSize: '9.5px', color: '#444' }}>
+                        <div style={{ fontSize: is58mm ? '8.5px' : '9.5px', color: '#444' }}>
                           [{modifierText}]
                         </div>
                       )}
-                      {item.notes && (
-                        <div style={{ fontSize: '9px', fontStyle: 'italic', color: '#666' }}>
+                      {settings.showItemNotes && item.notes && (
+                        <div style={{ fontSize: is58mm ? '8px' : '9px', fontStyle: 'italic', color: '#666' }}>
                           *{item.notes}
                         </div>
                       )}
                     </td>
-                    <td style={{ textAlign: 'center', padding: '4px 0' }}>{item.quantity}</td>
-                    <td style={{ textAlign: 'right', padding: '4px 0' }}>{formatRupiah(item.subtotal)}</td>
+                    <td style={{ textAlign: 'center', padding: '3px 0' }}>{item.quantity}</td>
+                    <td style={{ textAlign: 'right', padding: '3px 0' }}>{formatRupiah(item.subtotal)}</td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
 
-          <p style={{ borderTop: '1px dashed #000', margin: '6px 0' }} />
+          <p style={{ borderTop: '1px dashed #000', margin: is58mm ? '4px 0' : '6px 0' }} />
 
           {/* Total & Informasi Pembayaran */}
-          <div style={{ fontSize: '11px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>
+          <div style={{ fontSize: is58mm ? '9.5px' : '11px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: is58mm ? '11px' : '13px', fontWeight: 'bold', marginBottom: '3px' }}>
               <span>TOTAL</span>
               <span>{formatRupiah(subtotal)}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-              <span>Metode Bayar</span>
-              <span>{METHOD_LABELS[payment?.method] ?? 'Tunai'}</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+            {settings.showPaymentMethod && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5px' }}>
+                <span>Metode Bayar</span>
+                <span>{METHOD_LABELS[payment?.method] ?? 'Tunai'}</span>
+              </div>
+            )}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5px' }}>
               <span>Dibayar</span>
               <span>{formatRupiah(paidAmount)}</span>
             </div>
-            {payment?.method === 'CASH' && (
+            {settings.showCashChange && payment?.method === 'CASH' && (
               <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
                 <span>Kembalian</span>
                 <span>{formatRupiah(change)}</span>
@@ -240,15 +263,21 @@ export default function PrintReceipt({ order, payment, onClose }) {
           </div>
 
           {/* Catatan / Footer Struk */}
-          <p style={{ borderTop: '1px dashed #000', margin: '8px 0 6px 0' }} />
-          <div style={{ textAlign: 'center', fontSize: '10px', color: '#222' }}>
-            <p style={{ margin: '0 0 2px 0', fontWeight: 'bold' }}>Terima kasih atas kunjungan Anda! 🙏</p>
-            <p style={{ margin: '0 0 4px 0', fontSize: '9px', color: '#555' }}>
-              Simpan struk ini sebagai bukti pembayaran.
-            </p>
-            <p style={{ margin: '0', fontSize: '8.5px', color: '#777' }}>
-              Kedai TehYan POS • Cloud System
-            </p>
+          <p style={{ borderTop: '1px dashed #000', margin: is58mm ? '6px 0 4px 0' : '8px 0 6px 0' }} />
+          <div style={{ textAlign: 'center', fontSize: is58mm ? '8.5px' : '10px', color: '#222' }}>
+            {settings.footerThanks && (
+              <p style={{ margin: '0 0 2px 0', fontWeight: 'bold' }}>{settings.footerThanks}</p>
+            )}
+            {settings.footerNote && (
+              <p style={{ margin: '0 0 3px 0', fontSize: is58mm ? '8px' : '9px', color: '#555' }}>
+                {settings.footerNote}
+              </p>
+            )}
+            {settings.footerCredit && (
+              <p style={{ margin: '0', fontSize: is58mm ? '7.5px' : '8.5px', color: '#777' }}>
+                {settings.footerCredit}
+              </p>
+            )}
           </div>
         </div>,
         document.body
