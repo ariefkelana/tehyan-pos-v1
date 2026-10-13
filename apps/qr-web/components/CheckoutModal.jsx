@@ -239,17 +239,36 @@ export default function CheckoutModal({
 
           <div className="pt-2">
             <label className="mb-2 block text-xs font-bold text-gray-500 uppercase tracking-wider">Catatan Khusus (Opsional)</label>
-            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} maxLength={200} placeholder="Contoh: Tanpa bawang, es dipisah, dll." className="w-full resize-none rounded-2xl bg-gray-50 px-4 py-3 text-sm placeholder:text-gray-400 outline-none focus:bg-white focus:ring-2 focus:ring-zinc-900 transition-all border border-transparent focus:border-transparent" />
+            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} maxLength={200} placeholder="Contoh: Tanpa gula, es dipisah, dll." className="w-full resize-none rounded-2xl bg-gray-50 px-4 py-3 text-sm placeholder:text-gray-400 outline-none focus:bg-white focus:ring-2 focus:ring-zinc-900 transition-all border border-gray-100 focus:border-zinc-900" />
           </div>
 
           <div className="pt-2">
-            <label className="mb-2 block text-xs font-bold text-gray-500 uppercase tracking-wider">Nama Pemesan <span className="text-red-500">*</span></label>
-            <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Contoh: Kak Dimas / Kak Sarah" required className="w-full rounded-2xl bg-gray-50 px-4 py-3 text-sm placeholder:text-gray-400 outline-none focus:bg-white focus:ring-2 focus:ring-zinc-900 transition-all border border-transparent focus:border-transparent" />
+            <label className="mb-2 block text-xs font-bold text-zinc-800 uppercase tracking-wider flex items-center gap-1.5">
+              <span>👤</span> Nama Pemesan <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
+              placeholder="Contoh: Kak Dimas / Kak Sarah"
+              required
+              className="w-full rounded-2xl bg-gray-50 px-4 py-3 text-sm placeholder:text-gray-400 outline-none focus:bg-white focus:ring-2 focus:ring-zinc-900 transition-all border border-gray-200 focus:border-zinc-900 font-medium"
+            />
           </div>
 
           <div className="pt-2 pb-4">
-            <label className="mb-2 block text-xs font-bold text-gray-500 uppercase tracking-wider">Nomor WhatsApp <span className="text-red-500">*</span></label>
-            <input type="tel" value={waNumber} onChange={(e) => setWaNumber(e.target.value)} placeholder="081234567890" required className="w-full rounded-2xl bg-gray-50 px-4 py-3 text-sm placeholder:text-gray-400 outline-none focus:bg-white focus:ring-2 focus:ring-zinc-900 transition-all border border-transparent focus:border-transparent" />
+            <label className="mb-2 block text-xs font-bold text-zinc-800 uppercase tracking-wider flex items-center gap-1.5">
+              <span>📱</span> Nomor WhatsApp <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="tel"
+              value={waNumber}
+              onChange={(e) => setWaNumber(e.target.value)}
+              placeholder="081234567890"
+              required
+              className="w-full rounded-2xl bg-gray-50 px-4 py-3 text-sm placeholder:text-gray-400 outline-none focus:bg-white focus:ring-2 focus:ring-zinc-900 transition-all border border-gray-200 focus:border-zinc-900 font-medium"
+            />
+            <p className="text-[10px] text-gray-400 mt-1">Digunakan untuk menerima bukti bayar dan pemberitahuan saat pesanan siap diambil.</p>
           </div>
         </div>
 
