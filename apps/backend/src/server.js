@@ -70,7 +70,6 @@ const authRouter = require('./routes/auth');
 const categoryRouter = require('./routes/categories');
 const qrRouter = require('./routes/qr');
 const whatsappRouter = require('./routes/whatsapp');
-const { initWhatsApp } = require('./utils/whatsapp');
 
 // Rate limiter — max 120 req/min per IP on API routes
 const rateLimit = require('express-rate-limit');
@@ -157,11 +156,6 @@ const start = async () => {
     httpServer.listen(PORT, () => {
       console.log(`[Server] Kedai TehYan backend running on http://localhost:${PORT}`);
       console.log(`[Server] Environment: ${process.env.NODE_ENV}`);
-
-      // Initialize WhatsApp bot service in background
-      initWhatsApp().catch((err) => {
-        console.error('[WhatsApp] Background init error:', err.message);
-      });
     });
   } catch (error) {
     console.error('[Server] Failed to start:', error);

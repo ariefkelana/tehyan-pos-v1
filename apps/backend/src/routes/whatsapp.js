@@ -5,8 +5,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const {
   getWhatsAppStatus,
-  initWhatsApp,
-  disconnectWhatsApp,
+  setFonnteToken,
   sendWhatsApp,
 } = require('../utils/whatsapp');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
@@ -15,42 +14,58 @@ const router = express.Router();
 
 /**
  * GET /api/whatsapp/status
- * Get the live connection state of the WhatsApp bot.
+ * Get the current Fonnte device connection status and token info.
  */
-router.get('/status', requireAuth, (req, res) => {
-  const status = getWhatsAppStatus();
-  res.json({ success: true, data: status });
-});
-
-/**
- * POST /api/whatsapp/connect
- * Initialize or restart the WhatsApp connection.
- */
-router.post('/connect', requireAuth, requireAdmin, async (req, res) => {
+router.get('/status', requireAuth, async (req, res) => {
   try {
-    await initWhatsApp();
-    res.json({ success: true, message: 'WhatsApp initialization triggered.' });
+    const status = await getWhatsAppStatus();
+    res.json({ success: true, data: status });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
 /**
- * POST /api/whatsapp/disconnect
- * Disconnect and remove saved credentials.
+ * POST /api/whatsapp/token
+ * Save and verify a new Fonnte API Token.
  */
-router.post('/disconnect', requireAuth, requireAdmin, async (req, res) => {
-  try {
-    const result = await disconnectWhatsApp();
-    res.json({ success: result.success, message: 'WhatsApp session disconnected.' });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+router.post(
+  '/token',
+  requireAuth,
+  requireAdmin,
+  [
+    body('token').trim().notEmpty().withMessage('Token Fonnte wajib diisi.'),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ success: false, errors: errors.array() });
+    }
+
+    const { token } = req.body;
+    setFonnteToken(token);
+
+    // Verify token with Fonnte
+    const status = await getWhatsAppStatus(token);
+    if (status.status === 'ERROR' && status.reason === 'token invalid') {
+      return res.status(400).json({
+        success: false,
+        message: 'Token Fonnte tidak valid. Silakan periksa kembali token Anda di dashboard Fonnte.',
+        data: status,
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Token Fonnte berhasil disimpan dan diverifikasi!',
+      data: status,
+    });
   }
-});
+);
 
 /**
  * POST /api/whatsapp/send-test
- * Sends a test message to a specified phone number to test connectivity.
+ * Sends a test message to a specified phone number via Fonnte.
  */
 router.post(
   '/send-test',
@@ -69,15 +84,15 @@ router.post(
     const { phone, message } = req.body;
     const testMsg =
       message ||
-      `🤖 *Tes Notifikasi Kedai TehYan POS*\n\nHalo! Ini adalah pesan uji coba dari sistem POS Kedai TehYan. Jika Anda menerima pesan ini, bot WhatsApp otomatis telah berhasil terhubung dan siap beroperasi! 🎉`;
+      `🤖 *Tes Notifikasi Kedai TehYan POS*\n\nHalo! Ini adalah pesan uji coba dari sistem POS Kedai TehYan melalui gateway Fonnte. Jika Anda menerima pesan ini, bot WhatsApp otomatis telah berhasil terhubung dan siap beroperasi di Vercel! 🎉`;
 
     const result = await sendWhatsApp(phone, testMsg);
     if (result.success) {
-      res.json({ success: true, message: 'Pesan uji coba berhasil terkirim!' });
+      res.json({ success: true, message: 'Pesan uji coba berhasil terkirim ke WhatsApp!' });
     } else {
       res.status(400).json({
         success: false,
-        message: result.error || 'Gagal mengirim pesan uji coba. Pastikan bot WhatsApp terhubung.',
+        message: result.error || result.reason || 'Gagal mengirim pesan uji coba.',
         reason: result.reason,
       });
     }
